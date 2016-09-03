@@ -1,0 +1,599 @@
+/******************************************************************************/ 
+/* Style CSS for EPUB2 creation                                               */
+/*                                                                            */
+/* Based on:                                                                  */
+/*	Matt Harrison's Epub CSS Starter Kit                                      */
+/*    https://github.com/mattharrison/epub-css-starter-kit                    */
+/*	Christian Tietze's Epub CSS Starter Kit                                   */
+/*    https://github.com/DivineDominion/epub-css-starter-kit                  */
+/*                                                                            */
+/* The MIT License (MIT)                                                      */
+/* Copyright (c) 2016 Mukli Krisztián                                         */
+/* Copyright (c) 2015 Christian Tietze,                                       */
+/* Copyright (c) 2013 Matt Harrison                                           */
+/*                                                                            */
+/* Permission is hereby granted, free of charge, to any person obtaining a    */
+/* copy of this software and associated documentation files (the "Software"), */
+/* to deal in the Software without restriction, including without limitation  */
+/* the rights to use, copy, modify, merge, publish, distribute, sublicense,   */
+/* and/or sell copies of the Software, and to permit persons to whom the      */
+/* Software is furnished to do so, subject to the following conditions:       */
+/*                                                                            */
+/* The above copyright notice and this permission notice shall be included in */
+/* all copies or substantial portions of the Software.                        */
+/*                                                                            */
+/* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR */
+/* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,   */
+/* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE*/
+/* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER     */
+/* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING    */
+/* FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER        */
+/* DEALINGS IN THE SOFTWARE.                                                  */
+/*                                                                            */
+/******************************************************************************/
+/* Base formatting                                                            */
+/* This assumes geometric header shrinkage                                    */
+/* Also, it tries to make h2 be 1em                                           */
+/* Note Kindle hates margin:0 ! (or margin-left or margin-top set)            */
+/* it inserts newlines galore                                                 */
+/******************************************************************************/
+html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, 
+blockquote, pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, img, 
+ins, kbd, q, s, samp, small, strike, strong, sub, sup, tt, var, b, u, i, center,
+dl, dt, dd, fieldset, form, label, legend, table, caption, tbody, tfoot, thead,
+tr, th, td, article, aside, canvas, details, embed, figure, figcaption, footer,
+header, hgroup, menu, nav, output, ruby, section, summary, time, mark, audio,
+video {
+  /* margin: 0 */
+  margin-right: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  /* font: inherit */
+  vertical-align: baseline; 
+}
+/* Optimal Sizing See                                                         */
+/* http://demosthenes.info/blog/578/Crafting-Optimal-Type-Sizes-For-Web-Pages */
+/*                                                                            */
+/* Kobo and Nook dislike this                                                 */
+/*                                                                            */
+/* html {                                                                     */
+/*   font-size: 62.5%;                                                        */
+/* }                                                                          */
+/* body {                                                                     */
+/*  font-size: 1.6rem;                                                        */
+/*  line-height: 2.56rem;                                                     */
+/*  text-rendering: optimizeLegibility;                                       */
+/* }                                                                          */
+/******************************************************************************/
+/*  Text formatting                                                           */
+/*  * Headings use W3C defaults instead of Epub CSS Starter Kit               */
+/*  recommendations.                                                          */
+/*  * Using Serif fonts for texts, Sans for headers, and Monospace for code.  */
+/*  * Font-family for paragraphs not used by Wayteq xBook 60-w, but you can   */
+/*  use if adding a custom class                                              */
+/*  * Following text formatting elements used by Wayteq xBook 60-w            */
+/*    <b> - Bold text - OK, if font support it                                */
+/*    <strong> - Important text - OK, if font support it                      */
+/*    <i> - Italic text - OK, if font support it                              */
+/*    <em> - Emphasized text - OK, if font support it                         */
+/*    <mark> - Marked text - Adobe Reader only, but need explicit css rule    */
+/*    <small> - Small text - OK                                               */
+/*    <del> - Deleted text - Adobe Reader only                                */
+/*    <ins> - Inserted text - Adobe Reader only                               */
+/*    <sub> - Subscript text - OK                                             */
+/*    <sup> - Superscript text - OK                                           */
+/*    <u> - underline text - Adobe Reader only                                */
+/*    <strike> - Striked text - Adobe Reader only                             */
+/*    <a> - works, but displaying with Adobe Reader only                      */
+/******************************************************************************/
+h1, h2, h3, h4, h5, h6 {
+  page-break-after: avoid;
+  page-break-inside: avoid;
+  text-indent: 0px;
+  text-align: center;
+  font-family: Helvetica, Arial, sans-serif;
+}
+h1 {
+  /* https://www.w3.org/TR/html-markup/h1.html */
+  font-size: 2em;
+  margin-bottom: 3.2em; 
+}
+.title h1 {
+  margin-bottom: 0px;
+  margin-top: 3.2em; 
+}
+h2 {
+  /* https://www.w3.org/TR/html-markup/h2.html */
+  font-size: 1.5em;
+  margin-top: 0.5em;
+  margin-bottom: 0.5em; 
+}
+h3 {
+  /* https://www.w3.org/TR/html-markup/h3.html */
+  font-size: 1.17em; 
+}
+h4 {
+  /* https://www.w3.org/TR/html-markup/h4.html */
+  font-size: 1.12em; 
+}
+h5 {
+  /* https://www.w3.org/TR/html-markup/h5.html */
+  font-size: 0.83em; 
+}
+h6 {
+  /* https://www.w3.org/TR/html-markup/h6.html */
+  font-size: 0.67em; 
+}
+/* Do not indent first paragraph. Mobi will need class='first-para' */
+h1 + p, h2 + p, h3 + p, h4 + p, h5 + p, h6 + p {
+  text-indent: 0; 
+}
+p {
+  /* PaperWhite defaults to sans */
+  /* xBook-60w defaults to Droid Sans Fallback and ignoring that */
+  font-family: "Palatino", "Times New Roman", Caecilia, serif;
+  line-height: 1.5em;
+  margin: 0;
+  text-align: justify;
+  text-indent: 1em;
+  orphans: 2;
+  widows: 2; 
+}
+p.first-para, p.first-para-chapter, p.note-p-first {
+    text-indent: 0; 
+}
+p.no-indent {
+    text-indent: 0; 
+}
+.rtl {
+  direction: rtl;
+  float: right; 
+}
+.drop {
+  overflow: hidden;
+  line-height: 89%;
+  height: 0.8em;
+  font-size: 281%;
+  margin-right: 0.075em;
+  float: left;
+}
+.dropcap {
+  line-height: 100%;
+  font-size: 341%;
+  margin-right: 0.075em;
+  margin-top: -0.22em;
+  float: left;
+  height: 0.8em; 
+}
+mark {
+  background-color: #FFFF00; /* Yellow */
+}
+sup {
+  vertical-align: super;
+  font-size: 0.5em;
+  line-height: 0.5em; 
+}
+sub {
+  vertical-align: sub;
+  font-size: 0.5em;
+  line-height: 0.5em; 
+}
+/* Adobe Digital Edition ignoring font-family for paragraph, but use it if    */
+/* add with a class                                                           */
+.text {
+	font-family: "Times New Roman", serif;
+}
+/******************************************************************************/
+/*  Lists                                                                     */
+/******************************************************************************/
+ul, ol, dl {
+  margin: 1em 0 1em 0;
+  text-align: left; 
+}
+li {
+  font-family: "Palatino", "Times New Roman", Caecilia, serif;
+  line-height: 1.5em;
+  orphans: 2;
+  widows: 2;
+  text-align: justify;
+  text-indent: 0;
+  margin: 0; 
+}
+li p {
+    /* Fix paragraph indenting inside of lists */
+    text-indent: 0em; 
+}
+dt {
+  font-weight: bold;
+  font-family: Helvetica, Arial, sans-serif; 
+}
+dd {
+  line-height: 1.5em;
+  font-family: "Palatino", "Times New Roman", Caecilia, serif; 
+}
+dd p {
+    /* Fix paragraph indenting inside of definition lists */
+    text-indent: 0em; 
+}
+/******************************************************************************/
+/*  Quotes and codes                                                          */
+/*    blockqoute - Adobe Reader only                                          */
+/*    q - Adobe Reader only                                                   */
+/*    pre - OK                                                                */
+/******************************************************************************/
+blockquote {
+  margin-left: 1em;
+  margin-right: 1em;
+  line-height: 1.5em;
+  font-style: italic; 
+  background-color: #F8F8FF; /* Ghostwhite */
+}
+blockquote p.first-para, blockquote p {
+    text-indent: 0; 
+}
+pre, tt, code, samp, kbd {
+  font-family: "Courier New", Courier, monospace;
+  background-color: #F8F8FF; /* Ghostwhite */
+}
+pre {
+  font-size: 0.8em;
+  line-height: 1.2em;
+  margin-left: 1em;
+  /* margin-top: 1em */
+  margin-bottom: 1em;
+  white-space: pre-wrap;
+  display: block; 
+}
+/******************************************************************************/
+/*  Tables:                                                                   */
+/*  Working only with Adobe Reader, FBReader doesn't support tables           */
+/*  * Adding width: 100%                                                      */
+/******************************************************************************/
+table {
+  width: 100%;
+  page-break-inside: avoid;
+  border: 1px;
+  /* centers on kf8 */
+  margin: 1em auto;
+  border-collapse: collapse;
+  border-spacing: 0; 
+}
+th {
+  font-variant: small-caps; /* Don't work on Wayteq xBook-60w */
+  padding: 5px !important;
+  vertical-align: baseline;
+  border-bottom: 1px solid #000000; /* Black */
+}
+td {
+  font-family: "Palatino", "Times New Roman", Caecilia, serif;
+  font-size: small;
+  padding: 5px !important;
+  page-break-inside: avoid;
+  text-align: left;
+  text-indent: 0;
+  vertical-align: baseline; 
+}
+table.footnote {
+  margin: 0.5em 0em 0em 0em; 
+}
+.footnote {
+  font-size: 0.8em; 
+}
+.footnote-link {
+  font-size: 0.8em;
+  vertical-align: super; 
+}
+/******************************************************************************/
+/*  Images                                                                    */
+/******************************************************************************/
+img {
+  border: #FFFFFF 0.5em solid; /* White */
+  /* Don't go too big on images, let reader zoom in if they care to */
+  max-width: 80%;
+  max-height: 80%; 
+}
+img.pwhack {
+  /* Paperwhite hack */
+  width: 100%; 
+}
+.group {
+  page-break-inside: avoid; 
+}
+.caption {
+  text-align: center;
+  font-size: 0.8em;
+  font-weight: bold;
+}
+p img {
+  border: none; 
+}
+figure {
+  /* These first 3 should center figures */
+  padding: 1em;
+  background-color: #CCCCCC;
+  border: 1px solid #000000; /* Black */
+  text-align: center; 
+}
+figure img {
+   max-width: 80%;
+}
+figure figcaption {
+    text-align: center;
+    font-size: 0.8em;
+    font-weight: bold; 
+}
+/******************************************************************************/
+/*  Divs and pages                                                            */
+/******************************************************************************/
+@page {
+  margin-top: 30px;
+  margin-bottom: 20px; 
+}
+div.cover {
+  text-align: center;
+  page-break-after: always;
+  padding: 0px;
+  margin: 0px; 
+}
+div.cover img {
+    height: 100%;
+    max-width: 100%;
+    padding: 10px;
+    margin: 0px;
+    background-color: #CCCCCC; 
+}
+.half {
+  max-width: 50%; 
+}
+.tenth {
+  max-width: 10%;
+  width: 10%; 
+}
+.cover-img {
+  height: 100%;
+  max-width: 100%;
+  padding: 0px;
+  margin: 0px; 
+}
+div.div-literal-block-admonition {
+  margin-left: 1em;
+  background-color: #CCCCCC; 
+}
+div.note, div.tip, div.hint {
+  margin: 1em 0 1em 0 !important;
+  background-color: #CCCCCC;
+  padding: 1em !important;
+  /* Kindle is finnicky with borders, bottoms dissappear, width is ignored */
+  border-top: 0px solid #CCCCCC;
+  border-bottom: 0px dashed #CCCCCC;
+  page-break-inside: avoid; 
+}
+/******************************************************************************/
+/*  Sidebar                                                                   */
+/******************************************************************************/
+p.note-title, .admonition-title {
+  margin-top: 0;
+  /* Mobi doesn't like div margins */
+  font-variant: small-caps;
+  font-size: 0.9em;
+  text-align: center;
+  font-weight: bold;
+  font-style: normal;
+  /* margin:0 1em 0 1em */ 
+}
+div.note p, .note-p {
+  text-indent: 1em;
+  margin-left: 0;
+  margin-right: 0; 
+}
+/* font-style: italic */
+/* Since Kindle doesn't like multiple classes have to have combinations */
+div.note p.note-p-first {
+  text-indent: 0;
+  margin-left: 0;
+  margin-right: 0; 
+}
+/******************************************************************************/
+/*  Table of contents                                                         */
+/******************************************************************************/
+.tocEntry-1 a {
+  /* empty */
+  font-weight: bold;
+  text-decoration: none;
+  color: #000000; /* Black */
+}
+.tocEntry-2 a {
+  margin-left: 1em;
+  text-indent: 1em;
+  text-decoration: none;
+  color: #000000; /* Black */ 
+}
+.tocEntry-3 a {
+  text-indent: 2em;
+  text-decoration: none;
+  color: #000000; /* Black */ 
+}
+.tocEntry-4 a {
+  text-indent: 3em;
+  text-decoration: none;
+  color: #000000; /* Black */ 
+}
+.copyright-top {
+  margin-top: 6em; 
+}
+/******************************************************************************/
+/*  Aligns                                                                    */
+/******************************************************************************/
+.page-break-before {
+  page-break-before: always; 
+}
+.page-break-after {
+  page-break-after: always; 
+}
+.center {
+  text-indent: 0;
+  text-align: center;
+  margin-left: auto; /* Only with FBReader */
+  margin-right: auto; /* Only with FBReader */
+  display: block; 
+}
+.right {
+  text-align: right; 
+}
+.left {
+  text-align: left; 
+}
+.f-right {
+  float: right; 
+}
+.f-left {
+  float: left; 
+}
+/******************************************************************************/
+/*  Samples                                                                   */
+/******************************************************************************/
+.ingredient {
+  page-break-inside: avoid; 
+}
+.box-example {
+  background-color: #8AE234;
+  margin: 2em;
+  padding: 1em;
+  border: 2px dashed #EF2929; 
+}
+.blue {
+  background-color: #0000FF; /* Blue */
+}
+.dashed {
+  border: 2px dashed #EF2929; 
+}
+.padding-only {
+  padding: 1em; 
+}
+.margin-only {
+  margin: 2em; 
+}
+.smaller {
+  font-size: 0.8em; 
+}
+.em1 {
+  font-size: 0.5em; 
+}
+.em2 {
+  font-size: 0.75em; 
+}
+.em3 {
+  font-size: 1em; 
+}
+.em4 {
+  font-size: 1.5em;
+}
+.em5 {
+  font-size: 2em; 
+}
+.per1 {
+  font-size: 50%; 
+}
+.per2 {
+  font-size: 75%; 
+}
+.per3 {
+  font-size: 100%; 
+}
+.per4 {
+  font-size: 150%; 
+}
+.per5 {
+  font-size: 200%; 
+}
+.mousepoem p {
+  line-height: 0;
+  margin-left: 1em; 
+}
+.per100 {
+  font-size: 100%;
+  line-height: 0.9em; 
+}
+.per90 {
+  font-size: 90%;
+  line-height: 0.9em; 
+}
+.per80 {
+  font-size: 80%;
+  line-height: 0.9em; 
+}
+.per70 {
+  font-size: 70%;
+  line-height: 0.9em; 
+}
+.per60 {
+  font-size: 60%;
+  line-height: 0.9em; 
+}
+.per50 {
+  font-size: 50%;
+  line-height: 1.05em; 
+}
+.per40 {
+  font-size: 40%;
+  line-height: 0.9em; 
+}
+.size1 {
+  font-size: x-small; 
+}
+.size2 {
+  font-size: small; 
+}
+.size3 {
+  /* default */
+  font-size: medium; 
+}
+.size4 {
+  font-size: large; 
+}
+.size5 {
+  font-size: x-large; 
+}
+/******************************************************************************/
+/*  Poetic margins                                                            */
+/******************************************************************************/
+.stanza {
+  margin-top: 1em;
+  font-family: serif;
+  padding-left: 1em; 
+}
+.stanza p {
+    padding-left: 1em; 
+}
+.poetry {
+  margin: 1em; 
+}
+/******************************************************************************/
+/*  Line number                                                               */
+/******************************************************************************/
+.ln {
+  float: left;
+  color: #999999;
+  font-size: 0.8em;
+  font-style: italic; 
+}
+.pos1 {
+  margin-left: 1em;
+  text-indent: -1em; 
+}
+.pos2 {
+  margin-left: 2em;
+  text-indent: -1em; 
+}
+.pos3 {
+  margin-left: 3em;
+  text-indent: -1em; 
+}
+.pos4 {
+  margin-left: 4em;
+  text-indent: -1em; 
+}
+.normal-mono {
+  font-family: "Courier New", Courier, monospace; 
+}
