@@ -1,10 +1,17 @@
 # Epub Boilerplate
 
-Base styling css for general epub2, epub3 creating 
+Purpose of this project creating a general boilerplate for epub2-3 creation. 
+Unfortunately every main ebook-reader platform has it's own vendor-specific way
+to displaying epub-files. 
 
-Based on:
-	* Matt Harrison's Epub CSS Starter Kit
-    https://github.com/mattharrison/epub-css-starter-kit
+Creating epubs that work in multiple readers can be painful, like debugging web 
+problems back in the glory days of ie6. Only this time there is no firebug.
+
+There are some boilerplate projects for giving a good starting point for 
+cross-platform epub-file creation. Many of them inspired by this project:
+ * Epub CSS Starter Kit by Matt Harrison - https://github.com/mattharrison/epub-css-starter-kit
+ * Epub CSS Starter Kit fork by Christian Tietze - https://github.com/DivineDominion/epub-css-starter-kit
+ * Epub Boilerplate by Javier Arce - https://github.com/javierarce/epub-boilerplate
     
  Purpose of this project creating a general boilerplate for epub creation.
  Unfortunately creating epubs for multiple reader's can be painful. The
