@@ -27,6 +27,10 @@ are very finicky about CSS stylesheets and will ignore the whole sheet if there
 is an error or such property that unknown by the reader. 
 
 For that we create a legacy EPUB2 and a newer EPUB3 version of this starter kit.
+EPUB2 version created for legacy readers, tested on Adobe Digital Edition and 
+FBReader based reader, but keeping compatibility with the original Epub CSS 
+Starter Kit by Matt Harrison. EPUB3 version is for newer, smarter devices,
+mainly for the mentioned three platforms, Kindle, Nook and iBooks.
 
 ## Resources
  * Calibre Edit E-book - https://manual.calibre-ebook.com/edit.html
