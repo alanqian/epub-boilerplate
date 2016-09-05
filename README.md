@@ -1,6 +1,6 @@
 # Epub Boilerplate
 
-Purpose of this project creating a general boilerplate for epub2-3 creation. 
+Purpose of this project creating a general boilerplate for EPUB creation. 
 Unfortunately every main ebook-reader platform has it's own vendor-specific way
 to displaying epub-files. 
 
@@ -18,8 +18,15 @@ As Matt Harrison wrote, oddly enough, the .mobi format for Kindle, is the least
 common denominator that we want to get working. Given that it has 70% of the 
 market, it makes sense to put the effort there. Every effort has been made so 
 that epubs, using this css will generate clean mobi's with kindlegen.
-The other platforms of significance are nook and ibooks, in that order, finally
-other platforms.
+The other platforms of significance are followed:
+ * Kindle (for converting to .mobi)
+ * Nook
+ * iBooks
+ * Adobe Digital Edition (ADE)
+ * FBReader
+ * Kobo
+ * Apabi Reader
+ * Stanza
 
 Unfortunately, cheap and older readers don't support newer epub3 standard,
 especially FBReader or Adobe Digital Edition based devices. Some reader programs
