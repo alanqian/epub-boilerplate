@@ -5,12 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
-## Removed
+### Removed
  * Removing all files and restarting project, because of an unexpected bug.
-## Changed
+ 
+### Changed
  * Better testing environment
  * Main target for project: EPUB2 files with automatic MOBI convert
-## Added
+ 
+### Added
  * New CHANGELOG.md based on http://keepachangelog.com/
  
 ## [0.2.0] - 2016-09-04
