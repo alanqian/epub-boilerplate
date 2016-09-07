@@ -42,7 +42,7 @@
     <item href="Images/cover.jpg" id="cover.jpg" media-type="image/jpeg" />
     <item href="Text/cover.xhtml" id="cover" media-type="application/xhtml+xml" />
     <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml" />
-    <item href="Styles/style.css" id="css" media-type="text/css" />
+    <!-- <item href="Styles/style.css" id="css" media-type="text/css" />
     <item href="Text/frontmatter.xhtml" id="frontmatter" media-type="application/xhtml+xml" />
     <item href="Text/dedication.xhtml" id="dedication" media-type="application/xhtml+xml" />
     <item href="Text/toc.xhtml" id="toc" media-type="application/xhtml+xml" />
@@ -54,7 +54,7 @@
     <item href="Text/endnotes.xhtml" id="endnotes" media-type="application/xhtml+xml" />
     <item href="Text/acknowledgements.xhtml" id="acknowledgements" media-type="application/xhtml+xml" />
     <item href="Images/image-01.jpg" id="image-01" media-type="image/jpeg" />
-    <item href="Images/image-02.png" id="image-02" media-type="image/png" />
+    <item href="Images/image-02.png" id="image-02" media-type="image/png" /> -->
   </manifest>
   
   <!-- SPINE SECTION (mandatory)
@@ -77,7 +77,7 @@
    -->
   <spine toc="ncx">
     <itemref idref="cover" /> <!-- Remove for Kindle -->
-    <itemref idref="frontmatter" />
+    <!-- <itemref idref="frontmatter" />
     <itemref idref="toc" />
     <itemref idref="foreword" />
     <itemref idref="dedication" />
@@ -86,7 +86,7 @@
     <itemref idref="chapter-2" />
     <itemref idref="chapter-3" />
     <itemref idref="endnotes" />
-    <itemref idref="acknowledgements" />
+    <itemref idref="acknowledgements" /> -->
   </spine>
 
   <!-- GUIDE SECTION (optional, recommended by Apple)
@@ -102,7 +102,7 @@
    -->
   <guide>
     <reference href="Text/cover.xhtml" type="cover" title="Cover" />  <!-- Remove for Kindle -->
-    <reference href="Text/toc.xhtml" type="toc" title="Table of Contents" />
+    <!-- <reference href="Text/toc.xhtml" type="toc" title="Table of Contents" />
     <reference href="Text/frontmatter.xhtml" type="copyright-page" />
     <reference href="Text/foreword.xhtml" type="foreword" title="Beginning" />
     <reference href="Text/dedication.xhtml" type="dedication" />
@@ -111,7 +111,7 @@
     <reference href="Text/chapter02.xhtml" type="text" />
     <reference href="Text/chapter03.xhtml" type="text" />
     <reference href="Text/endnotes.xhtml" type="notes" />
-    <reference href="Text/acknowledgements.xhtml" type="acknowledgements" />
+    <reference href="Text/acknowledgements.xhtml" type="acknowledgements" /> -->
   </guide>
 
 </package>

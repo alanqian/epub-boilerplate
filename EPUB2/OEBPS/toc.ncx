@@ -35,7 +35,7 @@
       </navLabel>
       <content src="Text/cover.xhtml"/>
     </navPoint>
-    <navPoint id="navpoint2" playOrder="2">
+    <!-- <navPoint id="navpoint2" playOrder="2">
       <navLabel>
         <text>Front Matter</text>
       </navLabel>
@@ -88,6 +88,6 @@
         <text>Acknowledgements</text>
       </navLabel>
       <content src="Text/acknowledgements.xhtml"/>
-    </navPoint>
+    </navPoint> -->
   </navMap>
 </ncx>
