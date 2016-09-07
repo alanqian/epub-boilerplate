@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en">
+  <!-- METADATA SECTION (mandatory)
+	   Following metadata are mandatory for epubs.
+	   
+	   totalPageCount and maxPageNumber are mandatory, but they're not used in ebooks
+  -->  
+  <head>
+    <meta content="urn:isbn:[ISBN]" name="dtb:uid"/> <!-- Must be exactly the same as dc:identifier in the content.opf file -->
+    <meta content="1" name="dtb:depth"/> <!-- Set for 2 if you want a sub-level. It can go up to 4 -->
+    <meta content="-1" name="dtb:totalPageCount"/> <!-- Do Not change -->
+    <meta content="-1" name="dtb:maxPageNumber"/> <!-- Do Not change -->
+  </head>
+  
+  <!-- TITLE AND AUTHOR SECTION
+	   It is required for EPUB validation.
+  -->  
+  <docTitle>
+    <text>[BOOK'S TITLE]</text>
+  </docTitle>
+  <docAuthor>
+    <text>[BOOK'S AUTHOR]</text>
+  </docAuthor>
+  
+  <!-- NAVIGATION MAP SECTION
+	   This section required for navigation.
+	   
+	   The “play order” provides navigation for when you click the Next/Previous Section button on an eReader, if it has one.	  
+  -->
+  <navMap>
+    <navPoint id="navpoint1" playOrder="1"> <!-- Remove for Kindle, and reordering others -->
+      <navLabel>
+        <text>Cover</text>
+      </navLabel>
+      <content src="Text/cover.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint2" playOrder="2">
+      <navLabel>
+        <text>Front Matter</text>
+      </navLabel>
+      <content src="Text/frontmatter.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint3" playOrder="3">
+      <navLabel>
+        <text>Dedication</text>
+      </navLabel>
+      <content src="Text/dedication.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint4" playOrder="4">
+      <navLabel>
+        <text>Foreword</text>
+      </navLabel>
+      <content src="Text/foreword.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint5" playOrder="5">
+      <navLabel>
+        <text>Introduction</text>
+      </navLabel>
+      <content src="Text/introduction.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint6" playOrder="6">
+      <navLabel>
+        <text>Chapter 1</text>
+      </navLabel>
+      <content src="Text/chapter01.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint7" playOrder="7">
+      <navLabel>
+        <text>Chapter 2</text>
+      </navLabel>
+      <content src="Text/chapter02.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint8" playOrder="8">
+      <navLabel>
+        <text>Chapter 3</text>
+      </navLabel>
+      <content src="Text/chapter03.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint9" playOrder="9">
+      <navLabel>
+        <text>End notes</text>
+      </navLabel>
+      <content src="Text/endnotes.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint10" playOrder="10">
+      <navLabel>
+        <text>Acknowledgements</text>
+      </navLabel>
+      <content src="Text/acknowledgements.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>
