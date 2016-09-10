@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <!-- METADATA SECTION (mandatory)
+       This section contains data about the eBook such as the title, author, and product description. 
+       The eReading devices vary in how they utilize this metadata, but certain elements are required for a valid EPUB.
+       
+       Automatically generate IDPF-compliant metadata: http://bbebooksthailand.com/bb-meta-pad.html
+       UUID generator: http://www.famkruithof.net/uuid/uuidgen
+       Language code: http://en.wikipedia.org/wiki/List_of_ISO_639-2_codes
+       BISAC Subject Headings List: http://bisg.org/page/BISACSubjectCodes
+       MARC Code List for Relators: http://www.loc.gov/marc/relators/relaterm.html
+       
+       http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.2
+  -->  
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- Required metadata -->
+    <dc:title>[TITLE]</dc:title>
+    <dc:creator opf:file-as="[LASTNAME, NAME]" opf:role="aut">[NAME LASTNAME]</dc:creator>
+    <dc:publisher>[PUBLISHER NAME]</dc:publisher>
+    <dc:date opf:event="publication">[YYYY-MM-DD]</dc:date>
+    <dc:identifier id="bookid" opf:scheme="[ISBN/UUID]">urn:isbn:[ISBN]/[UUID]</dc:identifier><!--Use the Same for the toc.ncx file -->
+    <dc:language>[LANGUAGE CODE]</dc:language>
+    <meta name="cover" content="[COVER_NAME].jpg" /> <!--Required for KindleGen-->
+    <!-- Optional metadata -->
+    <dc:subject>[LIST / OF / SUBJECTS]</dc:subject><!-- Recommended at least 7 keywords (in 7 different lines) -->
+    <dc:description>[DESCRIPTION]</dc:description><!-- Don't use HTML -->
+    <dc:rights>Copyright © [YEAR] [COPYRIGHT HOLDER]. All rights reserved.</dc:rights>
+    <dc:type>Text</dc:type><!-- Do not change -->
+    <dc:source>[SOURCE URL/ISBN/UUID]</dc:source>
+    <dc:relation>[RELATION URL/ISBN/UUID]</dc:relation>
+    <dc:coverage>[Worldwide/Territorial]</dc:coverage>   
+    <dc:contributor opf:file-as="[LASTNAME, NAME]" opf:role="[MARC CODE]">[NAME LASTNAME]</dc:contributor>
+  </metadata>
+
+  <!-- MANIFEST SECTION (mandatory)
+       List of all the resources of the book (XHTML, CSS, images,…).
+       The order of item elements in the manifest is NOT significant.
+
+       http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3 
+  -->
+  <manifest>
+    <item href="Images/cover.jpg" id="My_Cover_ID" media-type="image/jpeg" /> <!-- Required for KindleGen, Barnes and Noble, and iBooks -->
+    <item href="Text/cover.xhtml" id="cover" media-type="application/xhtml+xml" />
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml" />
+    <item href="Styles/style.css" id="css" media-type="text/css" />
+    <item href="Text/title-page.xhtml" id="title-page" media-type="application/xhtml+xml" />
+    <item href="Text/colophon.xhtml" id="colophon" media-type="application/xhtml+xml" />
+    <item href="Text/dedication.xhtml" id="dedication" media-type="application/xhtml+xml" />
+    <item href="Text/epigraph.xhtml" id="epigraph" media-type="application/xhtml+xml" />
+    <item href="Text/toc.xhtml" id="toc" media-type="application/xhtml+xml" />
+    <item href="Text/foreword.xhtml" id="foreword" media-type="application/xhtml+xml" />
+    <item href="Text/preface.xhtml" id="preface" media-type="application/xhtml+xml" />
+    <item href="Text/acknowledgements.xhtml" id="acknowledgements" media-type="application/xhtml+xml" />
+    <item href="Text/chapter01.xhtml" id="chapter01" media-type="application/xhtml+xml" />
+    <item href="Text/chapter02.xhtml" id="chapter02" media-type="application/xhtml+xml" />
+    <item href="Text/chapter03.xhtml" id="chapter03" media-type="application/xhtml+xml" />
+    <item href="Text/glossary.xhtml" id="glossary" media-type="application/xhtml+xml" />
+    <item href="Text/bibliography.xhtml" id="bibliography" media-type="application/xhtml+xml" />    
+    <item href="Text/index.xhtml" id="index" media-type="application/xhtml+xml" />
+    <item href="Text/loi.xhtml" id="loi" media-type="application/xhtml+xml" />
+    <item href="Text/lot.xhtml" id="lot" media-type="application/xhtml+xml" />
+    <item href="Text/notes.xhtml" id="notes" media-type="application/xhtml+xml" />
+    <item href="Text/copyright-page.xhtml" id="copyright-page" media-type="application/xhtml+xml" />
+  </manifest>
+  
+  <!-- SPINE SECTION (mandatory)
+
+       The spine element defines the default reading order of the content. It doesn't list every file in the manifest, 
+       just the reading order.
+
+       The value of the idref tag in the spine has to match the ID tag for that entry in the manifest.
+
+       For example, if you have the following reference in your manifest:
+
+          <item id="chapter-1" href="chapter01.xhtml" media-type="application/xhtml+xml" />
+
+       your spine entry would be:
+
+          <itemref idref="chapter-1" />
+
+       http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.4
+
+   -->
+  <spine toc="ncx">
+    <itemref idref="cover" /> <!-- Remove for Kindle -->
+    <!-- Front matter -->
+    <itemref idref="title-page" />
+    <itemref idref="colophon" />
+    <itemref idref="dedication" />
+    <itemref idref="epigraph" />
+    <itemref idref="toc" />
+    <itemref idref="foreword" />
+    <itemref idref="preface" />
+    <itemref idref="acknowledgements" />
+    <!-- Body matter -->
+    <itemref idref="chapter01" />
+    <itemref idref="chapter02" />
+    <itemref idref="chapter03" />
+    <!-- Back matter -->
+    <itemref idref="glossary" />
+    <itemref idref="bibliography" />
+    <itemref idref="index" />
+    <itemref idref="loi" />
+    <itemref idref="lot" />
+    <itemref idref="notes" />
+    <itemref idref="copyright-page" />
+  </spine>
+
+  <!-- GUIDE SECTION (optional, recommended by Apple)
+
+        The guide lets you specify the role of the book's files.
+
+        Available tags: cover, title-page, toc, index, glossary, acknowledgements, bibliography,
+        colophon, copyright-page, dedication, epigraph, foreword, loi (list of illustrations),
+        lot (list of tables), notes, preface, and text.
+
+        http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.6
+
+   -->
+  <guide>
+    <reference href="Text/cover.xhtml" type="cover" title="Cover" />  <!-- Remove for Kindle -->
+    <reference href="Text/title-page.xhtml" type="title-page" />
+    <reference href="Text/colophon.xhtml" type="colophon" />
+    <reference href="Text/dedication.xhtml" type="dedication" />
+    <reference href="Text/epigraph.xhtml" type="epigraph" />
+    <reference href="Text/toc.xhtml" type="toc" title="Table of Contents" />
+    <reference href="Text/foreword.xhtml" type="foreword" title="Beginning" />
+    <reference href="Text/preface.xhtml" type="preface" />
+    <reference href="Text/acknowledgements.xhtml" type="acknowledgements" />
+    <reference href="Text/chapter01.xhtml" type="text" />
+    <reference href="Text/chapter02.xhtml" type="text" />
+    <reference href="Text/chapter03.xhtml" type="text" />
+    <reference href="Text/glossary.xhtml" type="glossary" />    
+    <reference href="Text/bibliography.xhtml" type="bibliography" />
+    <reference href="Text/index.xhtml" type="index" />
+    <reference href="Text/loi.xhtml" type="loi" />
+    <reference href="Text/lot.xhtml" type="lot" />
+    <reference href="Text/notes.xhtml" type="notes" />
+    <reference href="Text/copyright-page.xhtml" type="copyright-page" />
+  </guide>
+
+</package>

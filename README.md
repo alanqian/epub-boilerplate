@@ -45,3 +45,4 @@ mainly for the mentioned three platforms, Kindle, Nook and iBooks.
  * Paul Salvette: EPUB and KindleGen Tutorial - http://www.paulsalvette.com/2011/08/epub-and-kindlegen-tutorial-ebook.html
  * BB eBooks: EPUB and KindleGen Tutorial - http://bbebooksthailand.com/bb-epub-kindlegen-tutorial.html
  * MobileRead Wiki: Standard CSS for Epub files - http://wiki.mobileread.com/wiki/Standard_CSS_for_Epub_Files
+ * 99problems: A globa list of e-reader rendering bugs - https://github.com/dvschultz/99problems

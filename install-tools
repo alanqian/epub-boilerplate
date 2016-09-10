@@ -1,0 +1,436 @@
+#!/bin/bash
+################################################################################
+# Install script for tools using by Epub Boilerplate
+# 
+# MIT License
+# 
+# Copyright (c) 2016 Mukli Krisztián
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+################################################################################
+# install-tools
+# v1.0.1 - 2016-09-11
+################################################################################
+# Changelog
+#
+# v1.0.1 - 2016-09-11
+# * Local install path move to tools folder
+#
+# v1.0.0 - 2016-09-09
+# * First version of script
+#
+# v0.0.1 - 2016-09-07
+# * Base structure of script
+################################################################################
+
+#######################################
+# Hungarian localization
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+localization_hu() {
+# main
+msg_RunAsRoot="A rendszerszintű telepítéshez sudo-val kell futtatni ezt a 
+szkriptet!"
+# check_parameters
+msg_InvalidParameter="Érvénytelen paraméter, használja a 'install-tools --help' 
+parancsot a segítséghez!"
+# help
+msg_Help="Használat:\n
+[sudo] install-tools [KAPCSOLÓK]\n
+Elérhető kapcsolók:\n
+\t--tolocal: az aktuális könyvtárba telepít\n
+\t--toglobal: a rendszerszintű használathoz a /opt könyvtárba telepíti az 
+eszközöket\n
+\t-l | --license: licensz megjelenítése\n
+\t-h | --help: súgó megjelenítése\n
+\t-v | --verbose: részletes kimenet\n
+\t--version: verzióinformácó megjelenítése\n"
+# install_epubcheck
+msg_install_epubcheck_Confirm="Szeretné az epubcheck csomagot a disztribúció 
+csomagtárolójából telepíteni? Ha nem, az upstream verzió kerül telepítésre."
+msg_epubcheck_OK="EpubCheck telepítése... RENDBEN"
+msg_epubcheck_FAILED="EpubCheck telepítése... SIKERTELEN"
+# install_kindlegen
+msg_kindlegen_OK="Kindlegen telepítése... RENDBEN"
+msg_kindlegen_FAILED="Kindlegen telepítése... SIKERTELEN"
+# install yuicompressor
+msg_yuicompressor_OK="Yuicompressor telepítése... RENDBEN"
+msg_yuicompressor_FAILED="Yuicompressor telepítése... SIKERTELEN"
+}
+
+#######################################
+# English localization
+# Globals:
+#   msg_RunAsRoot
+#   msg_InvalidParameter
+#   msg_Help
+#   msg_install_epubcheck_Confirm
+#   msg_epubcheck_OK
+#   msg_epubcheck_FAILED
+#   msg_kindlegen_OK
+#   msg_epubcheck_FAILED
+#   msg_yuicompressor_OK
+#   msg_yuicompressor_FAILED
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+localization_en() {
+# main
+msg_RunAsRoot="This script must be run as root for system-wide installation"
+# check_parameters
+msg_InvalidParameter="Invalid parameters, use 'install-tools --help' 
+for usage"
+# help
+msg_Help="Usage:\n
+[sudo] install-tools [SWITCHES]\n
+Available switches:\n
+\t--tolocal: install tools to local directory\n
+\t--toglobal: install tools to /opt directory for system-wide access\n
+\t-l | --license: displaying license\n
+\t-h | --help: Displaying help\n
+\t-v | --verbose: Verbose output\n
+\t--version: Displaying version information\n"
+# install_epubcheck
+msg_install_epubcheck_Confirm="Would you like to install epubheck from
+distribution repository? If no, install upstream version."
+msg_epubcheck_OK="Install EpubCheck... OK"
+msg_epubcheck_FAILED="Install EpubCheck... FAILED"
+# install_kindlegen
+msg_kindlegen_OK="Install kindlegen... OK"
+msg_kindlegen_FAILED="Install kindlegen... FAILED"
+# install yuicompressor
+msg_yuicompressor_OK="Install yuicompressor... OK"
+msg_yuicompressor_FAILED="Install yuicompressor... FAILED"
+}
+#######################################
+# Initialize variables and localization
+# Globals:
+#   LOG_FILE
+#   GREP
+#   EPUBCHECK_URL
+#   EPUBCHECK_DOWNLOAD
+#   KINDLEGEN_URL
+#   YUICOMPRESSOR_URL
+#   YUICOMPRESSOR_DOWNLOAD
+#   TOGLOBAL
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+initialize_variables() {
+# Files
+# LOG_FILE=/var/log/install.log
+KINDLEGEN_FILE=kindlegen_linux_2.6_i386_v2_9.tar.gz
+# URLs
+GREP='browser_.*\.zip'
+EPUBCHECK_URL=https://api.github.com/repos/IDPF/epubcheck/releases/latest
+EPUBCHECK_DOWNLOAD=$(curl -s $EPUBCHECK_URL | grep $GREP | cut -d\" -f4)
+KINDLEGEN_URL=http://kindlegen.s3.amazonaws.com/$KINDLEGEN_FILE
+YUICOMPRESSOR_URL=https://api.github.com/repos/yui/yuicompressor/releases/latest
+YUICOMPRESSOR_DOWNLOAD=$(curl -s $YUICOMPRESSOR_URL | grep $GREP | cut -d\" -f4)
+
+# Functions
+TOGLOBAL=false
+VERBOSE=false
+
+# Localization
+case $LANG in
+  # Hungarian localization 
+  hu_HU|hu_HU.UTF-8) localization_hu ;;
+  # English localization
+  *) localization_en ;;
+esac
+}
+#######################################
+# Check parameters and running non-module methods
+# Globals:
+#   TOGLOBAL
+# Arguments:
+#   Switches of the script
+# Returns:
+#   None
+#######################################
+check_parameters() {
+case $# in
+  0) TOGLOBAL=false ;;
+  1) 
+    case ${1,,} in
+    --tolocal) TOGLOBAL=false ;;
+    --toglobal) TOGLOBAL=true ;;			
+    -h|--help) help ;;
+    -l|--license) license_information ;;
+    -v|--verbose) VERBOSE=true ;;
+    --version) version_information ;;
+    *) echo -e $msg_InvalidParameter ;;
+    esac
+  ;;
+  *)
+    for var in ${@:2} ; do
+      case ${var,,} in
+        --tolocal) TOGLOBAL=false ;;
+        --toglobal) TOGLOBAL=true ;;
+        -v|--verbose) VERBOSE=true ;;
+        *) echo -e $msg_InvalidParameter ;;
+      esac
+    done
+esac
+}
+
+#######################################
+# Usage of script
+# Globals:
+#   msg_Help
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+help() {
+echo -e $msg_Help
+exit 0
+}
+
+#######################################
+# Displaying license information
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+# License information
+license_information() {
+sed -n 3,25p $0 | sed 's/# //g' | sed 's/#//g'
+exit 0
+}
+
+#######################################
+# Displaying version information
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+version_information() {
+sed -n 27,28p $0 | sed 's/# //g'
+exit 0
+}
+#######################################
+# Write to log file
+# Globals:
+#   None
+# Arguments:
+#   message to log
+# Returns:
+#   None
+#######################################
+# Write log file
+log() {
+local priority="user.notice"
+
+if [ $# -gt 1 ]; then
+  case ${1,,} in
+    emerg|emergency) priority="user.emerg" ; shift ;;
+    alert) priority="user.alert" ; shift ;;
+    crit|critical) priority="user.crit" ; shift ;;
+    err|error) priority="user.err" ; shift ;;
+    warning|warn) priority="user.warning" ; shift ;;
+    notice) priority="user.notice" ; shift ;;
+    info) priority="user.info" ; shift ;;
+    debug) priority="user.debug" ; shift ;;
+  esac
+fi
+
+if $VERBOSE ; then
+  logger -s -t $(basename $0) -p $priority "$@";
+else
+  if [ $# -gt 0 ]; then echo $@ ; fi
+  logger -t $(basename $0) -p $priority "$@";
+fi
+}
+#######################################
+# Simple choice question
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   true if user choose YES
+#   false if user choose NO
+#   OR default answer
+#######################################
+confirm() {
+# http://djm.me/ask
+while true; do
+	if [ "${2:-}" = "Y" ]; then
+		prompt="Y/n"
+		default=Y
+	elif [ "${2:-}" = "N" ]; then
+		prompt="y/N"
+		default=N
+	else
+		prompt="y/n"
+		default=
+	fi
+	# Ask the question (not using "read -p" as it uses stderr not stdout)
+	echo -ne "$1 [$prompt] "
+
+	# Read the answer 
+  # (use /dev/tty in case stdin is redirected from somewhere else)
+	read REPLY </dev/tty
+
+	# Default?
+	if [ -z "$REPLY" ]; then
+		REPLY=$default
+	fi
+
+	# Check if the reply is valid
+	case "$REPLY" in
+		[yY][eE][sS]|[yY]) return 0 ;;
+		[nN][oO]|[nN]) return 1 ;;
+	esac
+
+done
+}
+#######################################
+# Stripping first directory from zip-archive (similar to tar -strip 1, but 
+# missing feature in zip package)
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+unzip-strip() {
+    local zip=$1
+    local dest=${2:-.}
+    local temp=$(mktemp -d) && unzip -d "$temp" "$zip" && mkdir -p "$dest" &&
+    shopt -s dotglob && local f=("$temp"/*) &&
+    if (( ${#f[@]} == 1 )) && [[ -d "${f[0]}" ]] ; then
+        mv "$temp"/*/* "$dest"
+    else
+        mv "$temp"/* "$dest"
+    fi && rmdir "$temp"/* "$temp"
+}
+#######################################
+# Install EpubCheck from repo or the upstream version
+# Globals:
+#   TOGLOBAL
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+install_epubcheck() {
+local result=0;
+local installpath="tools/epubcheck";
+if $TOGLOBAL ; then	
+	if confirm "$msg_install_epubcheck_Confirm" N ; then
+		apt-get install epubcheck 2>&1 | log
+	else
+		installpath="/opt/epubcheck";
+		if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
+		wget $EPUBCHECK_DOWNLOAD 2>&1 | log \
+		&& unzip-strip epubcheck*.zip $installpath 2>&1 | log \
+		&& rm epubcheck*.zip 2>&1 | log \
+		&& result=0 || result=1
+	fi
+else
+	if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
+	wget $EPUBCHECK_DOWNLOAD 2>&1 | log \
+	&& unzip-strip epubcheck*.zip $installpath 2>&1 | log \
+	&& rm epubcheck*.zip 2>&1 | log \
+	&& result=0 || result=1
+fi
+return $result
+}
+#######################################
+# Download and install kindlegen
+# Globals:
+#   TOGLOBAL
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+install_kindlegen(){
+local installpath="tools/kindlegen";
+if $TOGLOBAL; then	installpath="/opt/kindlegen" ; fi
+wget $KINDLEGEN_URL 2>&1 | log \
+&& if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
+mkdir $installpath 2>&1 | log \
+&& tar -xvf $KINDLEGEN_FILE -C $installpath 2>&1 | log \
+&& rm $KINDLEGEN_FILE 2>&1 | log \
+&& return 0 || return 1
+}
+#######################################
+# Download and install yuicompressor
+# Globals:
+#   TOGLOBAL
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+install_yuicompressor() {
+local installpath="tools/yuicompressor";
+if $TOGLOBAL; then installpath="/opt/yuicompressor" ; fi
+wget $YUICOMPRESSOR_DOWNLOAD 2>&1 | log \
+&& if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
+unzip yuicompressor*.zip -d $installpath 2>&1 | log \
+&& rm yuicompressor*.zip 2>&1 | log \
+&& return 0 || return 1
+}
+#######################################
+# Main function of script
+# Globals:
+#   TOGLOBAL
+#   EUID
+#   LOG_FILE
+# Arguments:
+#   Switches of the script
+# Returns:
+#   None
+#######################################
+initialize_variables
+check_parameters $@
+if $TOGLOBAL ; then
+	# Check run as root	
+	if [[ $EUID -ne 0 ]]; then
+		echo -e $msg_RunAsRoot
+		help
+		exit 1
+	fi
+fi
+#Run modules
+install_epubcheck && log $msg_epubcheck_OK || log $msg_epubcheck_FAIL
+install_kindlegen && log $msg_kindlegen_OK || log $msg_kindlegen_FAIL
+install_yuicompressor && log $msg_yuicompressor_OK || log $msg_yuicompressor_FAIL

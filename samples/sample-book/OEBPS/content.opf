@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<package xmlns="http://www.idpf.org/2007/opf" unique-identifier="bookid" version="2.0" xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <metadata xmlns:opf="http://www.idpf.org/2007/opf" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <!-- Required metadata -->
+    <dc:title>Sample ePUB</dc:title>
+    <dc:creator opf:file-as="Mukli, Krisztián" opf:role="aut">Krisztián Mukli</dc:creator>
+    <dc:publisher>ePUB Boilerplate</dc:publisher>
+    <dc:date opf:event="publication">2016-09-10</dc:date>
+    <dc:identifier id="bookid" opf:scheme="UUID">urn:uuid:7B24B17E-E26B-493F-B415-6BA0D00DB5B6</dc:identifier>
+    <dc:language>eng</dc:language>
+    <meta name="cover" content="Images/cover.jpg" /> <!--Required for KindleGen-->
+    <!-- Optional metadata -->
+    <dc:subject>sample</dc:subject>
+    <dc:subject>epub</dc:subject>
+    <dc:subject>epub2</dc:subject>
+    <dc:subject>boilerplate</dc:subject>
+    <dc:subject>ebook</dc:subject>
+    <dc:subject>design</dc:subject>
+    <dc:subject>formatting</dc:subject>
+    <dc:subject>help</dc:subject>
+    <dc:description>This EPUB file is designed to teach eBook developers how the EPUB 2.0.1 standard works.</dc:description>
+    <dc:rights>Copyright © 2016 Mukli Krisztián. All rights reserved.</dc:rights>
+    <dc:type>Text</dc:type>
+    <dc:source>urn:uuid:7B24B17E-E26B-493F-B415-6BA0D00DB5B6</dc:source>
+    <dc:relation>urn:uuid:7B24B17E-E26B-493F-B415-6BA0D00DB5B6</dc:relation>
+    <dc:coverage>Worldwide</dc:coverage>   
+    <dc:contributor opf:file-as="Salvette, Paul" opf:role="exp">Paul Salvette</dc:contributor>
+  </metadata>
+  <manifest>
+    <item href="Images/cover.jpg" id="My_Cover_ID" media-type="image/jpeg" /> <!-- Required for KindleGen, Barnes and Noble, and iBooks -->
+    <item href="Text/cover.xhtml" id="cover" media-type="application/xhtml+xml" />
+    <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml" />
+    <item href="Styles/style.css" id="css" media-type="text/css" />
+    <item href="Text/title-page.xhtml" id="title-page" media-type="application/xhtml+xml" />
+    <item href="Text/colophon.xhtml" id="colophon" media-type="application/xhtml+xml" />
+    <item href="Text/dedication.xhtml" id="dedication" media-type="application/xhtml+xml" />
+    <item href="Text/epigraph.xhtml" id="epigraph" media-type="application/xhtml+xml" />
+    <item href="Text/toc.xhtml" id="toc" media-type="application/xhtml+xml" />
+    <item href="Text/foreword.xhtml" id="foreword" media-type="application/xhtml+xml" />
+    <item href="Text/preface.xhtml" id="preface" media-type="application/xhtml+xml" />
+    <item href="Text/acknowledgements.xhtml" id="acknowledgements" media-type="application/xhtml+xml" />
+    <item href="Text/chapter01.xhtml" id="chapter01" media-type="application/xhtml+xml" />
+    <item href="Text/chapter02.xhtml" id="chapter02" media-type="application/xhtml+xml" />
+    <item href="Text/chapter03.xhtml" id="chapter03" media-type="application/xhtml+xml" />
+    <item href="Text/glossary.xhtml" id="glossary" media-type="application/xhtml+xml" />
+    <item href="Text/bibliography.xhtml" id="bibliography" media-type="application/xhtml+xml" />    
+    <item href="Text/index.xhtml" id="index" media-type="application/xhtml+xml" />
+    <item href="Text/loi.xhtml" id="loi" media-type="application/xhtml+xml" />
+    <item href="Text/lot.xhtml" id="lot" media-type="application/xhtml+xml" />
+    <item href="Text/notes.xhtml" id="notes" media-type="application/xhtml+xml" />
+    <item href="Text/copyright-page.xhtml" id="copyright-page" media-type="application/xhtml+xml" />
+    <item href="Images/placeholder.png" id="placeholder" media-type="image/png" />
+  </manifest>
+  <spine toc="ncx">
+    <itemref idref="cover" /> <!-- Remove for Kindle -->
+    <!-- Front matter -->
+    <itemref idref="title-page" />
+    <itemref idref="colophon" />
+    <itemref idref="dedication" />
+    <itemref idref="epigraph" />
+    <itemref idref="toc" />
+    <itemref idref="foreword" />
+    <itemref idref="preface" />
+    <itemref idref="acknowledgements" />
+    <!-- Body matter -->
+    <itemref idref="chapter01" />
+    <itemref idref="chapter02" />
+    <itemref idref="chapter03" />
+    <!-- Back matter -->
+    <itemref idref="glossary" />
+    <itemref idref="bibliography" />
+    <itemref idref="index" />
+    <itemref idref="loi" />
+    <itemref idref="lot" />
+    <itemref idref="notes" />
+    <itemref idref="copyright-page" />
+  </spine>
+  <guide>
+    <reference href="Text/cover.xhtml" type="cover" title="Cover" />  <!-- Remove for Kindle -->
+    <reference href="Text/title-page.xhtml" type="title-page" />
+    <reference href="Text/colophon.xhtml" type="colophon" />
+    <reference href="Text/dedication.xhtml" type="dedication" />
+    <reference href="Text/epigraph.xhtml" type="epigraph" />
+    <reference href="Text/toc.xhtml" type="toc" title="Table of Contents" />
+    <reference href="Text/foreword.xhtml" type="foreword" title="Beginning" />
+    <reference href="Text/preface.xhtml" type="preface" />
+    <reference href="Text/acknowledgements.xhtml" type="acknowledgements" />
+    <reference href="Text/chapter01.xhtml" type="text" />
+    <reference href="Text/chapter02.xhtml" type="text" />
+    <reference href="Text/chapter03.xhtml" type="text" />
+    <reference href="Text/glossary.xhtml" type="glossary" />    
+    <reference href="Text/bibliography.xhtml" type="bibliography" />
+    <reference href="Text/index.xhtml" type="index" />
+    <reference href="Text/loi.xhtml" type="loi" />
+    <reference href="Text/lot.xhtml" type="lot" />
+    <reference href="Text/notes.xhtml" type="notes" />
+    <reference href="Text/copyright-page.xhtml" type="copyright-page" />
+  </guide>
+
+</package>
