@@ -25,9 +25,12 @@
 # SOFTWARE.
 ################################################################################
 # install-tools
-# v1.0.0 - 2016-09-09
+# v1.0.1 - 2016-09-11
 ################################################################################
 # Changelog
+#
+# v1.0.1 - 2016-09-11
+# * Local install path move to tools folder
 #
 # v1.0.0 - 2016-09-09
 # * First version of script
@@ -348,12 +351,12 @@ unzip-strip() {
 #######################################
 install_epubcheck() {
 local result=0;
-local installpath="epubcheck";
+local installpath="tools/epubcheck";
 if $TOGLOBAL ; then	
 	if confirm "$msg_install_epubcheck_Confirm" N ; then
 		apt-get install epubcheck 2>&1 | log
 	else
-		INSTALLPATH="/opt/epubcheck";
+		installpath="/opt/epubcheck";
 		if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
 		wget $EPUBCHECK_DOWNLOAD 2>&1 | log \
 		&& unzip-strip epubcheck*.zip $installpath 2>&1 | log \
@@ -379,7 +382,7 @@ return $result
 #   None
 #######################################
 install_kindlegen(){
-local installpath="kindlegen";
+local installpath="tools/kindlegen";
 if $TOGLOBAL; then	installpath="/opt/kindlegen" ; fi
 wget $KINDLEGEN_URL 2>&1 | log \
 && if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
@@ -398,11 +401,11 @@ mkdir $installpath 2>&1 | log \
 #   None
 #######################################
 install_yuicompressor() {
-local installpath="yuicompressor";
+local installpath="tools/yuicompressor";
 if $TOGLOBAL; then installpath="/opt/yuicompressor" ; fi
 wget $YUICOMPRESSOR_DOWNLOAD 2>&1 | log \
 && if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
-unzip yuicompressor*.zip -d $INSTALLPATH 2>&1 | log \
+unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 && rm yuicompressor*.zip 2>&1 | log \
 && return 0 || return 1
 }
