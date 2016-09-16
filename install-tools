@@ -25,9 +25,14 @@
 # SOFTWARE.
 ################################################################################
 # install-tools
-# v1.1.2 - 2016-09-13
+# v1.2.0 - 2016-09-16
 ################################################################################
 # Changelog
+#
+# v1.2.0 - 2016-09-16
+# * set_localization function
+# * check_dependencies function
+# * modified confirm function
 #
 # v1.1.2 - 2016-09-13
 # * Fix some typo in messages
@@ -70,6 +75,9 @@ eszközöket\n
 \t-h | --help: súgó megjelenítése\n
 \t-v | --verbose: részletes kimenet\n
 \t--version: verzióinformácó megjelenítése\n"
+# check_dependencies
+msg_NoCurl="Telepítse a curl csomagot, vagy győződjön meg róla, hogy a PATH-ban
+ elérhető!"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Szeretné az epubcheck csomagot a disztribúció 
 csomagtárolójából telepíteni? Ha a NEM-et választja, az upstream verzió kerül 
@@ -118,6 +126,8 @@ Available switches:\n
 \t-h | --help: Displaying help\n
 \t-v | --verbose: Verbose output\n
 \t--version: Displaying version information\n"
+# check_dependencies
+msg_NoCurl="Please install curl or make sure it is in your path!"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Would you like to install epubheck from
 distribution repository? If you choose 'NO', install upstream version."
@@ -130,6 +140,25 @@ msg_kindlegen_FAILED="Install kindlegen... FAILED"
 msg_yuicompressor_OK="Install yuicompressor... OK"
 msg_yuicompressor_FAILED="Install yuicompressor... FAILED"
 }
+
+#######################################
+# Check and decide which language use
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+set_localization(){
+case $LANG in
+  # Hungarian localization 
+  hu_HU|hu_HU.UTF-8) localization_hu ;;
+  # English localization
+  *) localization_en ;;
+esac
+}
+
 #######################################
 # Initialize variables and localization
 # Globals:
@@ -141,6 +170,7 @@ msg_yuicompressor_FAILED="Install yuicompressor... FAILED"
 #   YUICOMPRESSOR_URL
 #   YUICOMPRESSOR_DOWNLOAD
 #   TOGLOBAL
+#   VERBOSE
 # Arguments:
 #   None
 # Returns:
@@ -148,8 +178,8 @@ msg_yuicompressor_FAILED="Install yuicompressor... FAILED"
 #######################################
 initialize_variables() {
 # Files
-# LOG_FILE=/var/log/install.log
 KINDLEGEN_FILE=kindlegen_linux_2.6_i386_v2_9.tar.gz
+
 # URLs
 GREP='browser_.*\.zip'
 EPUBCHECK_URL=https://api.github.com/repos/IDPF/epubcheck/releases/latest
@@ -161,15 +191,8 @@ YUICOMPRESSOR_DOWNLOAD=$(curl -s $YUICOMPRESSOR_URL | grep $GREP | cut -d\" -f4)
 # Functions
 TOGLOBAL=false
 VERBOSE=false
-
-# Localization
-case $LANG in
-  # Hungarian localization 
-  hu_HU|hu_HU.UTF-8) localization_hu ;;
-  # English localization
-  *) localization_en ;;
-esac
 }
+
 #######################################
 # Check parameters and running non-module methods
 # Globals:
@@ -247,6 +270,7 @@ version_information() {
 sed -n 27,28p $0 | sed 's/# //g'
 exit 0
 }
+
 #######################################
 # Write to log file
 # Globals:
@@ -280,6 +304,7 @@ else
   logger -t $(basename $0) -p $priority "$@";
 fi
 }
+
 #######################################
 # Simple choice question
 # Globals:
@@ -305,7 +330,7 @@ while true; do
 		default=
 	fi
 	# Ask the question (not using "read -p" as it uses stderr not stdout)
-	echo -n "$1 [$prompt] "
+	echo -n $1 [$prompt] 
 
 	# Read the answer 
   # (use /dev/tty in case stdin is redirected from somewhere else)
@@ -324,6 +349,7 @@ while true; do
 
 done
 }
+
 #######################################
 # Stripping first directory from zip-archive (similar to tar -strip 1, but 
 # missing feature in zip package)
@@ -345,6 +371,23 @@ unzip-strip() {
         mv "$temp"/* "$dest"
     fi && rmdir "$temp"/* "$temp"
 }
+
+#######################################
+# Check dependencies and if not installed, installing them
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+check_dependencies(){
+if ! which curl > /dev/null ; then
+  echo -e $msg_NoCurl;
+  exit 1;
+fi
+}
+
 #######################################
 # Install EpubCheck from repo or the upstream version
 # Globals:
@@ -377,6 +420,7 @@ else
 fi
 return $result
 }
+
 #######################################
 # Download and install kindlegen
 # Globals:
@@ -396,6 +440,7 @@ mkdir $installpath 2>&1 | log \
 && rm $KINDLEGEN_FILE 2>&1 | log \
 && return 0 || return 1
 }
+
 #######################################
 # Download and install yuicompressor
 # Globals:
@@ -415,6 +460,7 @@ unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 && rm yuicompressor*.zip 2>&1 | log \
 && return 0 || return 1
 }
+
 #######################################
 # Main function of script
 # Globals:
@@ -426,6 +472,8 @@ unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 # Returns:
 #   None
 #######################################
+set_localization
+check_dependencies
 initialize_variables
 check_parameters $@
 if $TOGLOBAL ; then
