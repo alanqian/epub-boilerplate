@@ -1,6 +1,445 @@
 #!/bin/bash
-rm -f $1.epub
-cd $1
-zip -q0X "../$1.epub" mimetype
-zip -qXr9D "../$1.epub" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store"
-java -jar ../tools/epubcheck/epubcheck.jar ../$1.epub
+################################################################################
+# ePUB and mobi publish script
+# 
+# MIT License
+# 
+# Copyright (c) 2016 Mukli Krisztián
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+################################################################################
+# EPUB and MOBI publish script
+# v1.0.0 - 2016-09-12
+################################################################################
+# Changelog
+#
+# v1.0.0 - 2016-09-09
+# * First version of script
+#
+################################################################################
+
+#######################################
+# Hungarian localization
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+localization_hu() {
+# main
+  localization_en
+}
+
+#######################################
+# English localization
+# Globals:
+#   msg_MissingParameter
+#   msg_InvalidParameter
+#   msg_Help
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+localization_en() {
+# main
+
+# check_parameters
+msg_MissingParameter="Missing parameters, use 'publish --help' for usage"
+msg_InvalidParameter="Invalid parameters, use 'publish --help' for usage"
+# help
+msg_Help="Usage:\n
+publish [SWITCHES] BOOK [INPUT] [OUTPUT]\n
+Available switches:\n
+\t-e2|--epub2: create EPUB2 file\n
+\t-e3|--epub3: create EPUB3 file\n
+\t-h | --help: displaying help\n
+\t-l | --license: displaying license\n
+\t-m |--mobi: create MOBI file\n
+\t-o | --optimalize: using some optimalization techniques for smaller filesize\n
+\t--version: displaying version information\n
+\t-v | --verbose: verbose output\n
+\n
+BOOK: Title of book and name of ebook-file\n
+INPUT: Input folder, if not specified, script search for book title\n
+OUTPUT: Output folder, if not specified, script uses actual folder\n
+\n
+Script create EPUB file with the specified book-title as filename from content\n
+of the specified folder. If no given folder, script will use folder called as 
+book-title (if exists).\n"
+# optimize
+msg_NoYuicompressor="Installed yuicompressor cannot find!\n
+You can install with install-tools command!"
+# create_epub
+msg_InputNotOK="Input folder doesn't exists!"
+msg_NoEpubCheck="Validation epub skipped! Installed epubcheck cannot find!\n
+You can install with install-tools command or use your package manager!"
+# create_mobi
+msg_NoKindlegen="Installed kindlegen cannot find!\n
+You can install with install-tools command!"
+}
+
+#######################################
+# Initialize variables and localization
+# Globals:
+#   OPTIMIZE
+#   BOOK
+#   FOLDER
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+initialize_variables() {
+# Parameters
+EPUB2=false;
+EPUB3=false;
+MOBI=false;
+OPTIMIZE=false;
+VERBOSE=false;
+BOOK="";
+INPUT="";
+OUTPUT="";
+
+# Global variables
+FILE="";
+TEMP="";
+LOCAL="$(pwd)";
+
+# Localization
+case $LANG in
+  # Hungarian localization 
+  hu_HU|hu_HU.UTF-8) localization_hu ;;
+  # English localization
+  *) localization_en ;;
+esac
+}
+
+#######################################
+# Usage of script
+# Globals:
+#   msg_Help
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+help() {
+echo -e $msg_Help
+exit 0
+}
+
+#######################################
+# Displaying license information
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+# License information
+license_information() {
+sed -n 3,25p $0 | sed 's/# //g' | sed 's/#//g'
+exit 0
+}
+
+#######################################
+# Displaying version information
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+version_information() {
+sed -n 27,28p $0 | sed 's/# //g'
+exit 0
+}
+
+#######################################
+# Error function
+# Globals:
+#   None
+# Arguments:
+#   Error message
+# Returns:
+#   None
+#######################################
+error(){
+echo -e "$@"
+exit 1
+}
+
+#######################################
+# Check parameters and running non-module methods
+# Globals:
+#   None
+# Arguments:
+#   Switches of the script
+# Returns:
+#   None
+#######################################
+check_parameters() {
+case $# in
+  0) error $msg_MissingParameter ;;
+  1) 
+    case "${1,,}" in
+      -h|--help) help ;;
+      -l|--license) license_information ;;
+      --version) version_information ;;
+      *) error $msg_MissingParameter ;;
+    esac
+  ;;
+  *)
+    for var in "$@" ; do
+      case ${var,,} in
+        -e2|--epub2) EPUB2=true ;;
+        -e3|--epub3) EPUB3=true ;;
+        -m|--mobi) MOBI=true ;;              
+        -o|--optimize) OPTIMIZE=true ;;
+        -v|--verbose) VERBOSE=true ;;
+        *)          
+          if [[ -z "${BOOK// }" ]] ; then 
+            BOOK="${var%/}";
+          elif [[ -z "${INPUT// }" ]] ; then 
+            INPUT="${var%/}";            
+          elif [[ -z "${OUTPUT// }" ]] ; then 
+            OUTPUT="${var%/}";
+          else 
+            error $msg_InvalidParameter ;
+          fi
+        ;;
+      esac
+    done
+  ;;
+esac
+
+if ! $EPUB2 && ! $EPUB3 && ! $MOBI ; then EPUB2=true; fi;
+
+if [[ -z "${INPUT// }" ]] ; then INPUT="$BOOK" ; fi
+if [[ ! -e $INPUT ]] ; then echo -e $msg_InputNotOK; exit -1 ; fi
+
+if [[ -z "${OUTPUT// }" ]] ; then OUTPUT="$LOCAL" ; fi
+if [[ ! -e $OUTPUT ]] ; then mkdir -p $OUTPUT ; fi
+
+FILE="$OUTPUT/$BOOK";
+}
+
+#######################################
+# Write to log file
+# Globals:
+#   FILE
+# Arguments:
+#   message to log
+# Returns:
+#   None
+#######################################
+log() {
+# If there are parameters read from parameters
+if [ $# -gt 0 ]; then
+  if $VERBOSE ; then echo $@ ; fi
+  echo -e `date +%Y-%m-%d\ %H:%M:%S` $@ >> "$FILE.log"
+else
+	# If there are no parameters read from stdin
+  while read data ; do
+    if $VERBOSE ; then echo $data ; fi
+	  echo -e `date +%Y-%m-%d\ %H:%M:%S` $data >> "$FILE.log"
+  done	
+fi
+}
+
+#######################################
+# Prepare ePUB directory for convert MOBI
+# Globals:
+#   TEMP
+#   EPUBFILE
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+prepare_mobi(){
+sed -i '/itemref idref="cover"/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/reference href="Text\/cover.xhtml" type="cover" title="Cover"/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/navPoint id="navpoint1" playOrder="1"/,/\/navPoint/ d' "$TEMP/OEBPS/toc.ncx"
+return 0;
+}
+
+create_epubtemp(){
+cd "$TEMP"
+zip -q0X "$EPUBTEMP" mimetype
+zip -qXr9D "$EPUBTEMP" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store"
+}
+
+#######################################
+# Create MOBI file
+# Globals:
+#   TEMP
+#   EPUBFILE
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+create_mobi() {
+if [[ -e "$LOCAL/tools/kindlegen/kindlegen" ]] ; then
+  "$LOCAL/tools/kindlegen/kindlegen" "$EPUBTEMP" -c2 -verbose -o "$MOBIFILE"
+elif [[ -e /opt/kindlegen/kindlegen ]] ; then
+  /opt/kindlegen/kindlegen "$EPUBTEMP" -c2 -verbose -o "$MOBIFILE"
+else
+  echo -e $msg_NoKindlegen;
+fi
+}
+
+#######################################
+# Create MOBI file
+# Globals:
+#   TEMP
+#   EPUBFILE
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+optimize(){
+if [[ -e "$LOCAL/tools/yuicompressor/yuicompressor.jar" ]] ; then
+  java -jar "$LOCAL/tools/yuicompressor/yuicompressor.jar" "$TEMP/OEBPS/Styles/style.css" -o "$TEMP/OEBPS/Styles/style.css" 2>&1 | log
+elif [[ -e /opt/yuicompressor/yuicompressor.jar ]] ; then
+  java -jar "/opt/yuicompressor/yuicompressor.jar" "$TEMP/OEBPS/Styles/style.css" -o "$TEMP/OEBPS/Styles/style.css" 2>&1 | log
+else
+  echo -e $msg_NoYuicompressor 2>&1 | log
+fi
+}
+#######################################
+# Generate EPUB2 file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+generate_epub2(){
+# start message
+$VERBOSE || echo -n "Generate EPUB2..." && log "Generate EPUB2..."
+
+# preparing
+if [[ -e "$FILE.epub" ]] ; then rm -f "$FILE.epub" 2>&1 | log ; fi
+TEMP=$(mktemp -d)
+cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
+
+# optimizing
+if $OPTIMIZE ; then optimize ; fi
+
+# creation
+cd "$TEMP"
+zip -q0X "$FILE.epub" mimetype 2>&1 | log 
+zip -qXr9D "$FILE.epub" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
+
+# checking
+if [[ -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]] ; then
+  java -jar "$LOCAL/tools/epubcheck/epubcheck.jar" "$FILE.epub" 2>&1 | log
+elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
+  java -jar "/opt/epubcheck/epubcheck.jar" "$FILE.epub" 2>&1 | log
+elif which epubcheck > /dev/null ; then
+  epubcheck "$FILE.epub" 2>&1 | log
+else
+  echo -e $msg_NoEpubCheck 2>&1 | log
+fi
+
+# delete temp
+rm -r "$TEMP" 2>&1 | log
+
+# end message
+$VERBOSE || echo "OK" && log "Generate EPUB2... OK"
+}
+
+#######################################
+# Generate EPUB3 file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+generate_epub3(){
+# TODO generate_epub3
+echo "Generate EPUB3"
+}
+
+#######################################
+# Generate MOBI file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+generate_mobi(){
+# start message
+$VERBOSE || echo -n "Generate MOBI..." && log "Generate MOBI..."
+
+# preparing
+if [[ -e "$FILE.tmp.epub" ]] ; then rm -f "$FILE.tmp.epub" 2>&1 | log ; fi
+TEMP=$(mktemp -d)
+cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
+
+# optimizing
+if $OPTIMIZE ; then optimize ; fi
+
+# creation
+cd "$TEMP"
+zip -q0X "$FILE.tmp.epub" mimetype 2>&1 | log 
+zip -qXr9D "$FILE.tmp.epub" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
+
+# checking
+if [[ -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]] ; then
+  java -jar "$LOCAL/tools/epubcheck/epubcheck.jar" "$FILE.tmp.epub" 2>&1 | log
+elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
+  java -jar "/opt/epubcheck/epubcheck.jar" "$FILE.tmp.epub" 2>&1 | log
+elif which epubcheck > /dev/null ; then
+  epubcheck "$FILE.tmp.epub" 2>&1 | log
+else
+  echo -e $msg_NoEpubCheck 2>&1 | log
+fi
+
+
+}
+
+#######################################
+# Main function of script
+# Globals:
+#   None
+# Arguments:
+#   Switches of the script
+# Returns:
+#   None
+#######################################
+initialize_variables
+check_parameters "$@"
+
+if $EPUB2 ; then generate_epub2 ; fi
+if $EPUB3 ; then generate_epub3 ; fi
+if $MOBI ; then generate_mobi ; fi

@@ -25,9 +25,13 @@
 # SOFTWARE.
 ################################################################################
 # install-tools
-# v1.0.1 - 2016-09-11
+# v1.1.2 - 2016-09-13
 ################################################################################
 # Changelog
+#
+# v1.1.2 - 2016-09-13
+# * Fix some typo in messages
+# * yuicompressor*.jar file renaming to yuicompressor.jar when installing
 #
 # v1.0.1 - 2016-09-11
 # * Local install path move to tools folder
@@ -68,7 +72,8 @@ eszközöket\n
 \t--version: verzióinformácó megjelenítése\n"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Szeretné az epubcheck csomagot a disztribúció 
-csomagtárolójából telepíteni? Ha nem, az upstream verzió kerül telepítésre."
+csomagtárolójából telepíteni? Ha a NEM-et választja, az upstream verzió kerül 
+telepítésre."
 msg_epubcheck_OK="EpubCheck telepítése... RENDBEN"
 msg_epubcheck_FAILED="EpubCheck telepítése... SIKERTELEN"
 # install_kindlegen
@@ -115,7 +120,7 @@ Available switches:\n
 \t--version: Displaying version information\n"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Would you like to install epubheck from
-distribution repository? If no, install upstream version."
+distribution repository? If you choose 'NO', install upstream version."
 msg_epubcheck_OK="Install EpubCheck... OK"
 msg_epubcheck_FAILED="Install EpubCheck... FAILED"
 # install_kindlegen
@@ -189,7 +194,7 @@ case $# in
     esac
   ;;
   *)
-    for var in ${@:2} ; do
+    for var in $@ ; do
       case ${var,,} in
         --tolocal) TOGLOBAL=false ;;
         --toglobal) TOGLOBAL=true ;;
@@ -300,7 +305,7 @@ while true; do
 		default=
 	fi
 	# Ask the question (not using "read -p" as it uses stderr not stdout)
-	echo -ne "$1 [$prompt] "
+	echo -n "$1 [$prompt] "
 
 	# Read the answer 
   # (use /dev/tty in case stdin is redirected from somewhere else)
@@ -406,6 +411,7 @@ if $TOGLOBAL; then installpath="/opt/yuicompressor" ; fi
 wget $YUICOMPRESSOR_DOWNLOAD 2>&1 | log \
 && if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
 unzip yuicompressor*.zip -d $installpath 2>&1 | log \
+&& mv $installpath/yuicompressor*.jar $installpath/yuicompressor.jar \
 && rm yuicompressor*.zip 2>&1 | log \
 && return 0 || return 1
 }
