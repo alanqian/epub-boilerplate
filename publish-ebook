@@ -126,19 +126,19 @@ esac
 #######################################
 initialize_variables() {
 # Parameters
-EPUB2=false;
-EPUB3=false;
-MOBI=false;
-OPTIMIZE=false;
-VERBOSE=false;
-BOOK="";
-INPUT="";
-OUTPUT="";
+EPUB2=false
+EPUB3=false
+MOBI=false
+OPTIMIZE=false
+VERBOSE=false
+BOOK=""
+INPUT=""
+OUTPUT=""
 
 # Global variables
-FILE="";
-TEMP="";
-LOCAL="$(pwd)";
+FILE=""
+TEMP=""
+LOCAL="$(pwd)"
 }
 
 #######################################
@@ -232,9 +232,9 @@ case $# in
           elif [[ -z "${INPUT// }" ]] ; then 
             INPUT="${var%/}";            
           elif [[ -z "${OUTPUT// }" ]] ; then 
-            OUTPUT="${var%/}";
+            OUTPUT="${var%/}"
           else 
-            error $msg_InvalidParameter ;
+            error $msg_InvalidParameter
           fi
         ;;
       esac
@@ -250,7 +250,7 @@ if [[ ! -e $INPUT ]] ; then echo -e $msg_InputNotOK; exit -1 ; fi
 if [[ -z "${OUTPUT// }" ]] ; then OUTPUT="$LOCAL" ; fi
 if [[ ! -e $OUTPUT ]] ; then mkdir -p $OUTPUT ; fi
 
-FILE="$OUTPUT/$BOOK";
+FILE="$OUTPUT/$BOOK"
 }
 
 #######################################
@@ -297,12 +297,12 @@ log() {
 # If there are parameters read from parameters
 if [ $# -gt 0 ]; then
   if $VERBOSE ; then echo $@ ; fi
-  echo -e `date +%Y-%m-%d\ %H:%M:%S` $@ >> "$FILE.log"
+  echo -e `date +%Y-%m-%d\ %H:%M:%S` $@  | tee -a "$FILE.log" >> /dev/null
 else
 	# If there are no parameters read from stdin
   while read data ; do
     if $VERBOSE ; then echo $data ; fi
-	  echo -e `date +%Y-%m-%d\ %H:%M:%S` $data >> "$FILE.log"
+	  echo -e `date +%Y-%m-%d\ %H:%M:%S` $data | tee -a "$FILE.log" >> /dev/null
   done	
 fi
 }
@@ -317,10 +317,7 @@ fi
 #   None
 #######################################
 clean(){
-log "Delete $1..."
-[[ -e "$1" ]] && rm -rf "$1" 2>&1 | log \
-&& log "Delete $1... OK" \
-|| log "Delete $1... FAILED"
+[[ -e "$1" ]] && rm -rf "$1" 2>&1 | log 
 }
 
 #######################################
@@ -333,10 +330,8 @@ log "Delete $1..."
 #   None
 #######################################
 create_temp(){
-log "Create TEMP..."
 TEMP=$(mktemp -d)
 cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
-log "Creating $TEMP and copy data...OK"
 }
 
 #######################################
@@ -349,11 +344,9 @@ log "Creating $TEMP and copy data...OK"
 #   None
 #######################################
 create_epub2(){
-log "Create $1..."
 cd "$TEMP"
 zip -q0X "$1" mimetype 2>&1 | log 
 zip -qXr9D "$1" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
-log "Create $1... OK"
 }
 
 #######################################
@@ -373,7 +366,43 @@ elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
 elif which epubcheck > /dev/null ; then
   epubcheck "$1" 2>&1 | log
 else
-  echo -e $msg_NoEpubCheck 2>&1 | log
+  $VERBOSE || echo -e $msg_NoEpubCheck && log $msg_NoEpubCheck
+  return -1
+fi
+}
+
+#######################################
+# Prepare data to MOBI file creation
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+prepare_mobi(){
+# content.opf
+sed -i '/itemref idref="cover"/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="cover".*/ d' "$TEMP/OEBPS/content.opf"
+# toc.ncx
+sed -i '/navPoint id="navpoint1" playOrder="1"/,/\/navPoint/ d' "$TEMP/OEBPS/toc.ncx"
+sed -i -r 's/(.*id=)(.*)( playOrder=")([0-9]+)(.*)/echo "\1\\"\2\\"\3\\"$((\4-1))\\"\5"/ge' "$TEMP/OEBPS/toc.ncx"
+#TODO:Flattening multilevel table of contents in `toc.ncx` file
+# xhtml files
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<acronym.*>)(.*)(<\/acronym>)/\2/g'
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<abbr.*>)(.*)(<\/abbr>)/\2/g'
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<bdo.*>)(.*)(<\/bdo>)/\2/g'
+
+}
+#######################################
+convert_to_mobi(){
+if [[ -e "$LOCAL/tools/kindlegen/kindlegen" ]] ; then
+  "$LOCAL/tools/kindlegen/kindlegen" "$1" -c2 -verbose -o "$BOOK.mobi" 2>&1 | log
+elif [[ -e /opt/kindlegen/kindlegen ]] ; then
+  /opt/kindlegen/kindlegen "$1" -c2 -verbose -o "$BOOK.mobi" 2>&1 | log
+else
+  $VERBOSE || echo -e $msg_NoKindlegen && log $msg_NoKindlegen
+  return -1
 fi
 }
 
@@ -388,7 +417,7 @@ fi
 #######################################
 generate_epub2(){
 # start message
-$VERBOSE || echo -n "Generate EPUB2..." && log "Generate EPUB2..."
+$VERBOSE || echo -n "Generate EPUB2... " && log "Generate EPUB2..."
 
 # preparing
 clean "$FILE.epub"
@@ -407,7 +436,59 @@ check_epub "$FILE.epub"
 clean "$TEMP"
 
 # end message
-$VERBOSE || echo "OK" && log "Generate EPUB2... OK"
+$VERBOSE || echo "COMPLETED" && log "Generate EPUB2... COMPLETED"
+}
+
+#######################################
+# Generate EPUB3 file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+generate_epub3(){
+# TODO: generate_epub3
+return 0;
+}
+
+#######################################
+# Generate MOBI file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+generate_mobi(){
+# start message
+$VERBOSE || echo -n "Generate MOBI... " && log "Generate MOBI..."
+
+# preparing
+clean "$FILE.tmp.epub"
+create_temp
+prepare_mobi
+
+# optimizing
+$OPTIMIZE && optimize
+
+# creation
+create_epub2 "$FILE.tmp.epub"
+
+# checking
+check_epub "$FILE.tmp.epub"
+
+# conversion
+convert_to_mobi "$FILE.tmp.epub"
+
+# delete temp
+#clean "$TEMP"
+#clean "$FILE.tmp.epub"
+
+# end message
+$VERBOSE || echo "COMPLETED" && log "Generate MOBI... COMPLETED"
 }
 
 #######################################
@@ -425,5 +506,5 @@ check_parameters "$@"
 check_dependencies
 
 if $EPUB2 ; then generate_epub2 ; fi
-#if $EPUB3 ; then generate_epub3 ; fi
-#if $MOBI ; then generate_mobi ; fi
+if $EPUB3 ; then generate_epub3 ; fi
+if $MOBI ; then generate_mobi ; fi
