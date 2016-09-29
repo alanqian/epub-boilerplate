@@ -1,6 +1,6 @@
 #!/bin/bash
 ################################################################################
-# ePUB and mobi publish script
+# EPUB and MOBI publish script
 # 
 # MIT License
 # 
@@ -67,7 +67,7 @@ msg_MissingParameter="Missing parameters, use 'publish --help' for usage"
 msg_InvalidParameter="Invalid parameters, use 'publish --help' for usage"
 # help
 msg_Help="Usage:\n
-publish [SWITCHES] BOOK [INPUT] [OUTPUT]\n
+publish-ebook [SWITCHES] BOOK [INPUT] [OUTPUT]\n
 Available switches:\n
 \t-e2|--epub2: create EPUB2 file\n
 \t-e3|--epub3: create EPUB3 file\n
@@ -86,15 +86,15 @@ Script create EPUB file with the specified book-title as filename from content\n
 of the specified folder. If no given folder, script will use folder called as 
 book-title (if exists).\n"
 # optimize
-msg_NoYuicompressor="Installed yuicompressor cannot find!\n
-You can install with install-tools command!"
+msg_NoYuicompressor="Please install yuicompressor or make sure it is in your
+ path! Use ./install-tools command for install every dependencies!"
 # create_epub
 msg_InputNotOK="Input folder doesn't exists!"
-msg_NoEpubCheck="Validation epub skipped! Installed epubcheck cannot find!\n
-You can install with install-tools command or use your package manager!"
+msg_NoEpubCheck="Please install epubcheck or make sure it is in your
+ path! Use ./install-tools command for install every dependencies!"
 # create_mobi
-msg_NoKindlegen="Installed kindlegen cannot find!\n
-You can install with install-tools command!"
+msg_NoKindlegen="Please install kindlegen or make sure it is in your
+ path! Use ./install-tools command for install every dependencies!"
 }
 
 #######################################
@@ -116,11 +116,9 @@ esac
 }
 
 #######################################
-# Initialize variables and localization
+# Initialize variables
 # Globals:
-#   OPTIMIZE
-#   BOOK
-#   FOLDER
+#   None
 # Arguments:
 #   None
 # Returns:
@@ -128,19 +126,19 @@ esac
 #######################################
 initialize_variables() {
 # Parameters
-EPUB2=false;
-EPUB3=false;
-MOBI=false;
-OPTIMIZE=false;
-VERBOSE=false;
-BOOK="";
-INPUT="";
-OUTPUT="";
+EPUB2=false
+EPUB3=false
+MOBI=false
+OPTIMIZE=false
+VERBOSE=false
+BOOK=""
+INPUT=""
+OUTPUT=""
 
 # Global variables
-FILE="";
-TEMP="";
-LOCAL="$(pwd)";
+FILE=""
+TEMP=""
+LOCAL="$(pwd)"
 }
 
 #######################################
@@ -234,9 +232,9 @@ case $# in
           elif [[ -z "${INPUT// }" ]] ; then 
             INPUT="${var%/}";            
           elif [[ -z "${OUTPUT// }" ]] ; then 
-            OUTPUT="${var%/}";
+            OUTPUT="${var%/}"
           else 
-            error $msg_InvalidParameter ;
+            error $msg_InvalidParameter
           fi
         ;;
       esac
@@ -252,7 +250,38 @@ if [[ ! -e $INPUT ]] ; then echo -e $msg_InputNotOK; exit -1 ; fi
 if [[ -z "${OUTPUT// }" ]] ; then OUTPUT="$LOCAL" ; fi
 if [[ ! -e $OUTPUT ]] ; then mkdir -p $OUTPUT ; fi
 
-FILE="$OUTPUT/$BOOK";
+FILE="$OUTPUT/$BOOK"
+}
+
+#######################################
+# Check dependencies and if not installed, installing them
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+check_dependencies(){
+# yuicompressor
+if [[ ! -e "$LOCAL/tools/yuicompressor/yuicompressor.jar" ]]\
+ && [[ ! -e /opt/yuicompressor/yuicompressor.jar ]] ; then
+  echo -e $msg_NoYuicompressor
+fi
+
+# epubcheck
+if [[ ! -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]]\
+ && [[ ! -e /opt/epubcheck/epubcheck.jar ]]\
+ && ! which epubcheck > /dev/null ; then
+  echo -e $msg_NoEpubCheck
+fi
+
+# kindlegen
+if [[ ! -e "$LOCAL/tools/kindlegen/kindlegen" ]]\
+ && [[ ! -e /opt/kindlegen/kindlegen ]] ; then
+  echo -e $msg_NoKindlegen;
+fi
+
 }
 
 #######################################
@@ -268,78 +297,136 @@ log() {
 # If there are parameters read from parameters
 if [ $# -gt 0 ]; then
   if $VERBOSE ; then echo $@ ; fi
-  echo -e `date +%Y-%m-%d\ %H:%M:%S` $@ >> "$FILE.log"
+  echo -e `date +%Y-%m-%d\ %H:%M:%S` $@  | tee -a "$FILE.log" >> /dev/null
 else
 	# If there are no parameters read from stdin
   while read data ; do
     if $VERBOSE ; then echo $data ; fi
-	  echo -e `date +%Y-%m-%d\ %H:%M:%S` $data >> "$FILE.log"
+	  echo -e `date +%Y-%m-%d\ %H:%M:%S` $data | tee -a "$FILE.log" >> /dev/null
   done	
 fi
 }
 
 #######################################
-# Prepare ePUB directory for convert MOBI
+# Clean old files
 # Globals:
-#   TEMP
-#   EPUBFILE
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+clean(){
+[[ -e "$1" ]] && rm -rf "$1" 2>&1 | log 
+}
+
+#######################################
+# Create temp folder and files
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+create_temp(){
+TEMP=$(mktemp -d)
+cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
+}
+
+#######################################
+# Create EPUB2 file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+create_epub2(){
+cd "$TEMP"
+zip -q0X "$1" mimetype 2>&1 | log 
+zip -qXr9D "$1" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
+}
+
+#######################################
+# Validating EPUB2 file
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+check_epub(){
+if [[ -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]] ; then
+  java -jar "$LOCAL/tools/epubcheck/epubcheck.jar" "$1" 2>&1 | log
+elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
+  java -jar "/opt/epubcheck/epubcheck.jar" "$1" 2>&1 | log
+elif which epubcheck > /dev/null ; then
+  epubcheck "$1" 2>&1 | log
+else
+  $VERBOSE || echo -e $msg_NoEpubCheck && log $msg_NoEpubCheck
+  return -1
+fi
+}
+
+#######################################
+# Prepare data to MOBI file creation
+# Globals:
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 prepare_mobi(){
-sed -i '/itemref idref="cover"/ d' "$TEMP/OEBPS/content.opf"
-sed -i '/reference href="Text\/cover.xhtml" type="cover" title="Cover"/ d' "$TEMP/OEBPS/content.opf"
+# content.opf
+sed -i -r 's/(.*reference)( href=".*")( type=)("text")( title=)(.*\/>)/\1\2\3"DELETE"\5\6/g' "$TEMP/OEBPS/content.opf"
+sed -i -r 's/(.*reference)( href=".*")( type=)(".*")( title="Beginning")( \/>)/\1\2\3"text"\5\6/g' "$TEMP/OEBPS/content.opf"
+sed -i '/.*id="cover-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/itemref idref="cover-page"/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="cover".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="title-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="index".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="glossary".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="acknowledgements".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="bibliography".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="colophon".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="copyright-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="dedication".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="epigraph".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="foreword".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="loi".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="lot".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="notes".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="preface".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="DELETE".*/ d' "$TEMP/OEBPS/content.opf"
+
+# toc.ncx
 sed -i '/navPoint id="navpoint1" playOrder="1"/,/\/navPoint/ d' "$TEMP/OEBPS/toc.ncx"
-return 0;
-}
+sed -i -r 's/(.*id=)(.*)( playOrder=")([0-9]+)(.*)/echo "\1\\"\2\\"\3\\"$((\4-1))\\"\5"/ge' "$TEMP/OEBPS/toc.ncx"
+#TODO:Flattening multilevel table of contents in `toc.ncx` file
 
-create_epubtemp(){
-cd "$TEMP"
-zip -q0X "$EPUBTEMP" mimetype
-zip -qXr9D "$EPUBTEMP" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store"
-}
+# xhtml files
+rm "$TEMP/OEBPS/Text/cover.xhtml"
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<acronym.*>)(.*)(<\/acronym>)/\2/g'
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<abbr.*>)(.*)(<\/abbr>)/\2/g'
+find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<bdo.*>)(.*)(<\/bdo>)/\2/g'
 
+}
 #######################################
-# Create MOBI file
-# Globals:
-#   TEMP
-#   EPUBFILE
-# Arguments:
-#   None
-# Returns:
-#   None
-#######################################
-create_mobi() {
+convert_to_mobi(){
 if [[ -e "$LOCAL/tools/kindlegen/kindlegen" ]] ; then
-  "$LOCAL/tools/kindlegen/kindlegen" "$EPUBTEMP" -c2 -verbose -o "$MOBIFILE"
+  "$LOCAL/tools/kindlegen/kindlegen" "$1" -c2 -verbose -o "$BOOK.mobi" 2>&1 | log
 elif [[ -e /opt/kindlegen/kindlegen ]] ; then
-  /opt/kindlegen/kindlegen "$EPUBTEMP" -c2 -verbose -o "$MOBIFILE"
+  /opt/kindlegen/kindlegen "$1" -c2 -verbose -o "$BOOK.mobi" 2>&1 | log
 else
-  echo -e $msg_NoKindlegen;
+  $VERBOSE || echo -e $msg_NoKindlegen && log $msg_NoKindlegen
+  return -1
 fi
 }
 
-#######################################
-# Create MOBI file
-# Globals:
-#   TEMP
-#   EPUBFILE
-# Arguments:
-#   None
-# Returns:
-#   None
-#######################################
-optimize(){
-if [[ -e "$LOCAL/tools/yuicompressor/yuicompressor.jar" ]] ; then
-  java -jar "$LOCAL/tools/yuicompressor/yuicompressor.jar" "$TEMP/OEBPS/Styles/style.css" -o "$TEMP/OEBPS/Styles/style.css" 2>&1 | log
-elif [[ -e /opt/yuicompressor/yuicompressor.jar ]] ; then
-  java -jar "/opt/yuicompressor/yuicompressor.jar" "$TEMP/OEBPS/Styles/style.css" -o "$TEMP/OEBPS/Styles/style.css" 2>&1 | log
-else
-  echo -e $msg_NoYuicompressor 2>&1 | log
-fi
-}
 #######################################
 # Generate EPUB2 file
 # Globals:
@@ -351,39 +438,26 @@ fi
 #######################################
 generate_epub2(){
 # start message
-$VERBOSE || echo -n "Generate EPUB2..." && log "Generate EPUB2..."
+$VERBOSE || echo -n "Generate EPUB2... " && log "Generate EPUB2..."
 
-clean_oldfiles
-copy_to_temp
 # preparing
-if [[ -e "$FILE.epub" ]] ; then rm -f "$FILE.epub" 2>&1 | log ; fi
-TEMP=$(mktemp -d)
-cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
+clean "$FILE.epub"
+create_temp
 
 # optimizing
-if $OPTIMIZE ; then optimize ; fi
+$OPTIMIZE && optimize
 
 # creation
-cd "$TEMP"
-zip -q0X "$FILE.epub" mimetype 2>&1 | log 
-zip -qXr9D "$FILE.epub" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
+create_epub2 "$FILE.epub"
 
 # checking
-if [[ -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]] ; then
-  java -jar "$LOCAL/tools/epubcheck/epubcheck.jar" "$FILE.epub" 2>&1 | log
-elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
-  java -jar "/opt/epubcheck/epubcheck.jar" "$FILE.epub" 2>&1 | log
-elif which epubcheck > /dev/null ; then
-  epubcheck "$FILE.epub" 2>&1 | log
-else
-  echo -e $msg_NoEpubCheck 2>&1 | log
-fi
+check_epub "$FILE.epub"
 
 # delete temp
-rm -r "$TEMP" 2>&1 | log
+clean "$TEMP"
 
 # end message
-$VERBOSE || echo "OK" && log "Generate EPUB2... OK"
+$VERBOSE || echo "COMPLETED" && log "Generate EPUB2... COMPLETED"
 }
 
 #######################################
@@ -396,8 +470,8 @@ $VERBOSE || echo "OK" && log "Generate EPUB2... OK"
 #   None
 #######################################
 generate_epub3(){
-# TODO generate_epub3
-echo "Generate EPUB3"
+# TODO: generate_epub3
+return 0;
 }
 
 #######################################
@@ -411,33 +485,31 @@ echo "Generate EPUB3"
 #######################################
 generate_mobi(){
 # start message
-$VERBOSE || echo -n "Generate MOBI..." && log "Generate MOBI..."
+$VERBOSE || echo -n "Generate MOBI... " && log "Generate MOBI..."
 
 # preparing
-if [[ -e "$FILE.tmp.epub" ]] ; then rm -f "$FILE.tmp.epub" 2>&1 | log ; fi
-TEMP=$(mktemp -d)
-cp -Rp "$INPUT/." "$TEMP" 2>&1 | log
+clean "$FILE.tmp.epub"
+create_temp
+prepare_mobi
 
 # optimizing
-if $OPTIMIZE ; then optimize ; fi
+$OPTIMIZE && optimize
 
 # creation
-cd "$TEMP"
-zip -q0X "$FILE.tmp.epub" mimetype 2>&1 | log 
-zip -qXr9D "$FILE.tmp.epub" * -x "*.svn*" -x "*~" -x "*.hg*" -x "*.swp" -x "*.DS_Store" 2>&1 | log
+create_epub2 "$FILE.tmp.epub"
 
 # checking
-if [[ -e "$LOCAL/tools/epubcheck/epubcheck.jar" ]] ; then
-  java -jar "$LOCAL/tools/epubcheck/epubcheck.jar" "$FILE.tmp.epub" 2>&1 | log
-elif [[ -e /opt/epubcheck/epubcheck.jar ]] ; then
-  java -jar "/opt/epubcheck/epubcheck.jar" "$FILE.tmp.epub" 2>&1 | log
-elif which epubcheck > /dev/null ; then
-  epubcheck "$FILE.tmp.epub" 2>&1 | log
-else
-  echo -e $msg_NoEpubCheck 2>&1 | log
-fi
+check_epub "$FILE.tmp.epub"
 
+# conversion
+convert_to_mobi "$FILE.tmp.epub"
 
+# delete temp
+#clean "$TEMP"
+#clean "$FILE.tmp.epub"
+
+# end message
+$VERBOSE || echo "COMPLETED" && log "Generate MOBI... COMPLETED"
 }
 
 #######################################
@@ -452,6 +524,7 @@ fi
 set_localization
 initialize_variables
 check_parameters "$@"
+check_dependencies
 
 if $EPUB2 ; then generate_epub2 ; fi
 if $EPUB3 ; then generate_epub3 ; fi

@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<!DOCTYPE ncx PUBLIC "-//NISO//DTD ncx 2005-1//EN" "http://www.daisy.org/z3986/2005/ncx-2005-1.dtd">
+<ncx xmlns="http://www.daisy.org/z3986/2005/ncx/" version="2005-1" xml:lang="en"> 
+  <head>
+    <meta name="dtb:uid" content="urn:uuid:7B24B17E-E26B-493F-B415-6BA0D00DB5B6"/>
+    <meta name="dtb:depth" content="4"/>
+    <meta name="dtb:totalPageCount" content="0"/>
+    <meta name="dtb:maxPageNumber" content="0"/>
+  </head>
+  <docTitle>
+    <text>Sample ePUB</text>
+  </docTitle>
+  <docAuthor>
+    <text>Mukli Krisztián</text>
+  </docAuthor>
+  <!--
+  Multilevel ToC:
+    Cover
+    
+    Title page
+    |- Colophon
+    
+    Dedication
+    |-Epigraph
+      |- Table of contents
+      
+    Foreword
+    |-Preface
+      |- Acknowledgments
+    
+    Chapter 01
+    Chapter 02
+    Chapter 03
+    
+    Glossary
+    |- Bibliography
+       |- Index
+          |- List of illustration
+          |- List of tables
+          
+    Notes
+    Copyright page
+    
+  -->
+  <navMap>
+  <!-- Level 1 -->
+    <navPoint id="navpoint1" playOrder="1"> <!-- Remove for Kindle, and reordering others -->
+      <navLabel>
+        <text>Cover</text>
+      </navLabel>
+      <content src="Text/cover.xhtml"/>
+    </navPoint>
+  <!-- Level 2 -->
+    <navPoint id="navpoint2" playOrder="2">
+      <navLabel>
+        <text>Title Page</text>
+      </navLabel>
+      <content src="Text/title-page.xhtml"/>
+    
+      <navPoint id="navpoint3" playOrder="3">
+        <navLabel>
+          <text>Colophon</text>
+        </navLabel>
+        <content src="Text/colophon.xhtml"/>
+      </navPoint>
+      
+    </navPoint>
+    <!-- Level 3 -->
+    <navPoint id="navpoint4" playOrder="4">
+      <navLabel>
+        <text>Dedication</text>
+      </navLabel>
+      <content src="Text/dedication.xhtml"/>
+
+      <navPoint id="navpoint5" playOrder="5">
+        <navLabel>
+          <text>Epigraph</text>
+        </navLabel>
+        <content src="Text/epigraph.xhtml"/>
+      
+        <navPoint id="navpoint6" playOrder="6">
+          <navLabel>
+            <text>Table of Contents</text>
+          </navLabel>
+          <content src="Text/toc.xhtml"/>
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <!-- Level 3 -->
+    <navPoint id="navpoint7" playOrder="7">
+      <navLabel>
+        <text>Foreword</text>
+      </navLabel>
+      <content src="Text/foreword.xhtml"/>
+    
+      <navPoint id="navpoint8" playOrder="8">
+        <navLabel>
+          <text>Preface</text>
+        </navLabel>
+        <content src="Text/preface.xhtml"/>
+      
+        <navPoint id="navpoint9" playOrder="9">
+          <navLabel>
+            <text>Acknowledgements</text>
+          </navLabel>
+          <content src="Text/acknowledgements.xhtml"/>
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <!-- Level 1 -->
+    <navPoint id="navpoint10" playOrder="10">
+      <navLabel>
+        <text>Chapter 01</text>
+      </navLabel>
+      <content src="Text/chapter01.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint11" playOrder="11">
+      <navLabel>
+        <text>Chapter 02</text>
+      </navLabel>
+      <content src="Text/chapter02.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint12" playOrder="12">
+      <navLabel>
+        <text>Chapter 03</text>
+      </navLabel>
+      <content src="Text/chapter03.xhtml"/>
+    </navPoint>
+    <!-- Level 4 -->
+    <navPoint id="navpoint13" playOrder="13">
+      <navLabel>
+        <text>Glossary</text>
+      </navLabel>
+      <content src="Text/glossary.xhtml"/>
+    
+      <navPoint id="navpoint14" playOrder="14">
+        <navLabel>
+          <text>Bibliography</text>
+        </navLabel>
+        <content src="Text/bibliography.xhtml"/>
+      
+        <navPoint id="navpoint15" playOrder="15">
+          <navLabel>
+            <text>Index</text>
+          </navLabel>
+          <content src="Text/index.xhtml"/>
+
+          <navPoint id="navpoint16" playOrder="16">
+            <navLabel>
+              <text>List of illustrations</text>
+            </navLabel>
+            <content src="Text/loi.xhtml"/>
+          </navPoint>
+          <navPoint id="navpoint17" playOrder="17">
+            <navLabel>
+              <text>List of tables</text>
+            </navLabel>
+            <content src="Text/lot.xhtml"/>
+          </navPoint>
+        </navPoint>
+      </navPoint>
+    </navPoint>
+    <!-- Level 1 -->
+    <navPoint id="navpoint18" playOrder="18">
+      <navLabel>
+        <text>Notes</text>
+      </navLabel>
+      <content src="Text/notes.xhtml"/>
+    </navPoint>
+    <navPoint id="navpoint19" playOrder="19">
+      <navLabel>
+        <text>Copyright Page</text>
+      </navLabel>
+      <content src="Text/copyright-page.xhtml"/>
+    </navPoint>
+  </navMap>
+</ncx>
