@@ -39,8 +39,8 @@
        http://idpf.org/epub/20/spec/OPF_2.0.1_draft.htm#Section2.3 
   -->
   <manifest>
-    <item href="Images/cover.jpg" id="My_Cover_ID" media-type="image/jpeg" /> <!-- Required for KindleGen, Barnes and Noble, and iBooks -->
-    <item href="Text/cover.xhtml" id="cover" media-type="application/xhtml+xml" />
+    <item href="Images/cover.jpg" id="[COVER_NAME].jpg" media-type="image/jpeg" /> <!-- Required for KindleGen, Barnes and Noble, and iBooks -->
+    <item href="Text/cover.xhtml" id="cover-page" media-type="application/xhtml+xml" /> <!-- Remove for Kindle -->
     <item href="toc.ncx" id="ncx" media-type="application/x-dtbncx+xml" />
     <item href="Styles/style.css" id="css" media-type="text/css" />
     <item href="Text/title-page.xhtml" id="title-page" media-type="application/xhtml+xml" />
@@ -82,7 +82,7 @@
 
    -->
   <spine toc="ncx">
-    <itemref idref="cover" /> <!-- Remove for Kindle -->
+    <itemref idref="cover-page" /> <!-- Remove for Kindle -->
     <!-- Front matter -->
     <itemref idref="title-page" />
     <itemref idref="colophon" />
@@ -110,7 +110,7 @@
 
         The guide lets you specify the role of the book's files.
 
-        Available tags: cover, title-page, toc, index, glossary, acknowledgements, bibliography,
+        Available tags: cover-page, title-page, toc, index, glossary, acknowledgements, bibliography,
         colophon, copyright-page, dedication, epigraph, foreword, loi (list of illustrations),
         lot (list of tables), notes, preface, and text.
 
@@ -138,5 +138,4 @@
     <reference href="Text/notes.xhtml" type="notes" title="Notes" />
     <reference href="Text/copyright-page.xhtml" type="copyright-page" title="Copyright page" />
   </guide>
-
 </package>

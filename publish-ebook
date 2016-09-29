@@ -382,13 +382,34 @@ fi
 #######################################
 prepare_mobi(){
 # content.opf
-sed -i '/itemref idref="cover"/ d' "$TEMP/OEBPS/content.opf"
+sed -i -r 's/(.*reference)( href=".*")( type=)("text")( title=)(.*\/>)/\1\2\3"DELETE"\5\6/g' "$TEMP/OEBPS/content.opf"
+sed -i -r 's/(.*reference)( href=".*")( type=)(".*")( title="Beginning")( \/>)/\1\2\3"text"\5\6/g' "$TEMP/OEBPS/content.opf"
+sed -i '/.*id="cover-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/itemref idref="cover-page"/ d' "$TEMP/OEBPS/content.opf"
 sed -i '/.*type="cover".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="title-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="index".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="glossary".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="acknowledgements".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="bibliography".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="colophon".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="copyright-page".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="dedication".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="epigraph".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="foreword".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="loi".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="lot".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="notes".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="preface".*/ d' "$TEMP/OEBPS/content.opf"
+sed -i '/.*type="DELETE".*/ d' "$TEMP/OEBPS/content.opf"
+
 # toc.ncx
 sed -i '/navPoint id="navpoint1" playOrder="1"/,/\/navPoint/ d' "$TEMP/OEBPS/toc.ncx"
 sed -i -r 's/(.*id=)(.*)( playOrder=")([0-9]+)(.*)/echo "\1\\"\2\\"\3\\"$((\4-1))\\"\5"/ge' "$TEMP/OEBPS/toc.ncx"
 #TODO:Flattening multilevel table of contents in `toc.ncx` file
+
 # xhtml files
+rm "$TEMP/OEBPS/Text/cover.xhtml"
 find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<acronym.*>)(.*)(<\/acronym>)/\2/g'
 find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<abbr.*>)(.*)(<\/abbr>)/\2/g'
 find "$TEMP/OEBPS/Text" -type f -print0 | xargs -0 sed -i -r 's/(<bdo.*>)(.*)(<\/bdo>)/\2/g'
