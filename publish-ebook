@@ -31,6 +31,8 @@
 #
 # v1.0.0 - 2016-09-09
 # * First version of script
+# * EPUB2 creation
+# * MOBI creation, except multilevel ToC
 #
 ################################################################################
 
@@ -406,7 +408,11 @@ sed -i '/.*type="DELETE".*/ d' "$TEMP/OEBPS/content.opf"
 # toc.ncx
 sed -i '/navPoint id="navpoint1" playOrder="1"/,/\/navPoint/ d' "$TEMP/OEBPS/toc.ncx"
 sed -i -r 's/(.*id=)(.*)( playOrder=")([0-9]+)(.*)/echo "\1\\"\2\\"\3\\"$((\4-1))\\"\5"/ge' "$TEMP/OEBPS/toc.ncx"
-#TODO:Flattening multilevel table of contents in `toc.ncx` file
+
+# flattening multilevel table of contents in `toc.ncx` file
+sed -i '/<\/navPoint>/ d' "$TEMP/OEBPS/toc.ncx"
+sed -i -r 's/(<content src=.*)/\1\n    <\/navPoint>/g' "$TEMP/OEBPS/toc.ncx"
+#TODO: pretty-xml for better looking code
 
 # xhtml files
 rm "$TEMP/OEBPS/Text/cover.xhtml"
