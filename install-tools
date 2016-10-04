@@ -472,6 +472,7 @@ unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 # Returns:
 #   None
 #######################################
+#FIXME: If no installed curl, -h or --help switches doesn't work, instead of writing the missing curl message to terminal.
 set_localization
 check_dependencies
 initialize_variables
