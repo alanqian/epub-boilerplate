@@ -28,6 +28,12 @@
 # v1.2.0 - 2016-09-16
 ################################################################################
 # Changelog
+# 
+# v2.0.0 - 2016-10-05
+# * FIXED: If no installed curl, -h or --help switches doesn't work, instead of 
+#writing the missing curl message to terminal.
+# * Check and install dependencies in a better way
+# * Does not support local install 
 #
 # v1.2.0 - 2016-09-16
 # * set_localization function
@@ -68,16 +74,10 @@ parancsot a segítséghez!"
 msg_Help="Használat:\n
 [sudo] install-tools [KAPCSOLÓK]\n
 Elérhető kapcsolók:\n
-\t--tolocal: az aktuális könyvtárba telepít\n
-\t--toglobal: a rendszerszintű használathoz a /opt könyvtárba telepíti az 
-eszközöket\n
 \t-l | --license: licensz megjelenítése\n
 \t-h | --help: súgó megjelenítése\n
 \t-v | --verbose: részletes kimenet\n
 \t--version: verzióinformácó megjelenítése\n"
-# check_dependencies
-msg_NoCurl="Telepítse a curl csomagot, vagy győződjön meg róla, hogy a PATH-ban
- elérhető!"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Szeretné az epubcheck csomagot a disztribúció 
 csomagtárolójából telepíteni? Ha a NEM-et választja, az upstream verzió kerül 
@@ -90,6 +90,9 @@ msg_kindlegen_FAILED="Kindlegen telepítése... SIKERTELEN"
 # install yuicompressor
 msg_yuicompressor_OK="Yuicompressor telepítése... RENDBEN"
 msg_yuicompressor_FAILED="Yuicompressor telepítése... SIKERTELEN"
+# install_prettyxml
+msg_prettyxml_OK="Pretty-XML telepítése... RENDBEN"
+msg_prettyxml_FAIL="Pretty-XML telepítése... SIKERTELEN"
 }
 
 #######################################
@@ -120,14 +123,10 @@ for usage"
 msg_Help="Usage:\n
 [sudo] install-tools [SWITCHES]\n
 Available switches:\n
-\t--tolocal: install tools to local directory\n
-\t--toglobal: install tools to /opt directory for system-wide access\n
 \t-l | --license: displaying license\n
 \t-h | --help: Displaying help\n
 \t-v | --verbose: Verbose output\n
 \t--version: Displaying version information\n"
-# check_dependencies
-msg_NoCurl="Please install curl or make sure it is in your path!"
 # install_epubcheck
 msg_install_epubcheck_Confirm="Would you like to install epubheck from
 distribution repository? If you choose 'NO', install upstream version."
@@ -139,6 +138,12 @@ msg_kindlegen_FAILED="Install kindlegen... FAILED"
 # install yuicompressor
 msg_yuicompressor_OK="Install yuicompressor... OK"
 msg_yuicompressor_FAILED="Install yuicompressor... FAILED"
+# install_prettyxml
+msg_prettyxml_OK="Install pretty-xml... OK"
+msg_prettyxml_FAIL="Install pretty-xml... FAILED"
+# uninstall
+msg_uninstall_OK="Uninstallation... OK"
+msg_uninstall_FAIL="Uninstallation... FAILED"
 }
 
 #######################################
@@ -183,13 +188,11 @@ KINDLEGEN_FILE=kindlegen_linux_2.6_i386_v2_9.tar.gz
 # URLs
 GREP='browser_.*\.zip'
 EPUBCHECK_URL=https://api.github.com/repos/IDPF/epubcheck/releases/latest
-EPUBCHECK_DOWNLOAD=$(curl -s $EPUBCHECK_URL | grep $GREP | cut -d\" -f4)
 KINDLEGEN_URL=http://kindlegen.s3.amazonaws.com/$KINDLEGEN_FILE
 YUICOMPRESSOR_URL=https://api.github.com/repos/yui/yuicompressor/releases/latest
-YUICOMPRESSOR_DOWNLOAD=$(curl -s $YUICOMPRESSOR_URL | grep $GREP | cut -d\" -f4)
 
 # Functions
-TOGLOBAL=false
+INSTALL=true
 VERBOSE=false
 }
 
@@ -204,27 +207,27 @@ VERBOSE=false
 #######################################
 check_parameters() {
 case $# in
-  0) TOGLOBAL=false ;;
+  0) ;;
   1) 
-    case ${1,,} in
-    --tolocal) TOGLOBAL=false ;;
-    --toglobal) TOGLOBAL=true ;;			
+    case ${1,,} in		
     -h|--help) help ;;
     -l|--license) license_information ;;
+    -u|--uninstall) INSTALL=false ;;
     -v|--verbose) VERBOSE=true ;;
     --version) version_information ;;
-    *) echo -e $msg_InvalidParameter ;;
+    *) echo -e $msg_InvalidParameter; exit 1 ;;
     esac
   ;;
-  *)
-    for var in $@ ; do
-      case ${var,,} in
-        --tolocal) TOGLOBAL=false ;;
-        --toglobal) TOGLOBAL=true ;;
-        -v|--verbose) VERBOSE=true ;;
-        *) echo -e $msg_InvalidParameter ;;
-      esac
+  2)
+    for var in "$@" ; do
+    case ${var,,} in
+    -u|--uninstall) INSTALL=false ;;
+    -v|--verbose) VERBOSE=true ;;
+    *) echo -e $msg_InvalidParameter; exit 1 ;;
+    esac
     done
+  ;;
+  *) echo -e $msg_InvalidParameter; exit 1 ;;
 esac
 }
 
@@ -300,7 +303,6 @@ fi
 if $VERBOSE ; then
   logger -s -t $(basename $0) -p $priority "$@";
 else
-  if [ $# -gt 0 ]; then echo $@ ; fi
   logger -t $(basename $0) -p $priority "$@";
 fi
 }
@@ -382,57 +384,62 @@ unzip-strip() {
 #   None
 #######################################
 check_dependencies(){
-if ! which curl > /dev/null ; then
-  echo -e $msg_NoCurl;
-  exit 1;
-fi
+local pkgs="";
+command -v wget > /dev/null || pkgs="wget "
+command -v curl > /dev/null || pkgs=$pkgs"curl "
+command -v nodejs > /dev/null || pkgs=$pkgs"nodejs "
+command -v npm > /dev/null || pkgs=$pkgs"npm "
+command -v java > /dev/null || pkgs=$pkgs"default-jre "
+
+[[ -n $pkgs ]] && apt-get install --yes  $pkgs 2>&1 | log
+command -v nodejs > /dev/null || ln -s /usr/bin/nodejs /usr/bin/node 2>&1 | log
 }
 
 #######################################
 # Install EpubCheck from repo or the upstream version
 # Globals:
-#   TOGLOBAL
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 install_epubcheck() {
-local result=0;
-local installpath="tools/epubcheck";
-if $TOGLOBAL ; then	
-	if confirm "$msg_install_epubcheck_Confirm" N ; then
-		apt-get install epubcheck 2>&1 | log
-	else
-		installpath="/opt/epubcheck";
-		if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
-		wget $EPUBCHECK_DOWNLOAD 2>&1 | log \
-		&& unzip-strip epubcheck*.zip $installpath 2>&1 | log \
-		&& rm epubcheck*.zip 2>&1 | log \
-		&& result=0 || result=1
-	fi
+local result=false;
+local installpath="/opt/epubcheck";
+
+$VERBOSE || echo -n $msg_epubcheck && log $msg_epubcheck
+
+if confirm "$msg_install_epubcheck_Confirm" N ; then
+	apt-get install epubcheck 2>&1 | log \
+	&& result=true
 else
+  EPUBCHECK_DOWNLOAD=$(curl -s $EPUBCHECK_URL | grep $GREP | cut -d\" -f4)	
 	if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
 	wget $EPUBCHECK_DOWNLOAD 2>&1 | log \
 	&& unzip-strip epubcheck*.zip $installpath 2>&1 | log \
 	&& rm epubcheck*.zip 2>&1 | log \
-	&& result=0 || result=1
+	&& result=true
 fi
-return $result
+$result \
+&& { $VERBOSE || echo $msg_OK && log $msg_epubcheck$msg_OK ; } \
+|| { $VERBOSE || echo $msg_FAIL && log $msg_epubcheck$msg_FAIL ; }
+ 
+
+
 }
 
 #######################################
 # Download and install kindlegen
 # Globals:
-#   TOGLOBAL
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 install_kindlegen(){
-local installpath="tools/kindlegen";
-if $TOGLOBAL; then	installpath="/opt/kindlegen" ; fi
+local installpath="/opt/kindlegen";
 wget $KINDLEGEN_URL 2>&1 | log \
 && if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
 mkdir $installpath 2>&1 | log \
@@ -444,15 +451,15 @@ mkdir $installpath 2>&1 | log \
 #######################################
 # Download and install yuicompressor
 # Globals:
-#   TOGLOBAL
+#   None
 # Arguments:
 #   None
 # Returns:
 #   None
 #######################################
 install_yuicompressor() {
-local installpath="tools/yuicompressor";
-if $TOGLOBAL; then installpath="/opt/yuicompressor" ; fi
+local installpath="/opt/yuicompressor"
+YUICOMPRESSOR_DOWNLOAD=$(curl -s $YUICOMPRESSOR_URL | grep $GREP | cut -d\" -f4)
 wget $YUICOMPRESSOR_DOWNLOAD 2>&1 | log \
 && if [[ -e $installpath ]] ; then rm -rf $installpath 2>&1 | log ; fi
 unzip yuicompressor*.zip -d $installpath 2>&1 | log \
@@ -462,9 +469,43 @@ unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 }
 
 #######################################
+# Download and install pretty-xml
+# Globals:
+#   None
+# Arguments:
+#   None
+# Returns:
+#   None
+#######################################
+install_prettyxml() {
+npm install -g pretty-xml 2>&1 | log \
+&& return 0 || return 1
+}
+
+uninstall() {
+npm uninstall -g pretty-xml 2>&1 | log \
+&& apt-get purge curl nodejs npm 2>&1 | log \
+&& apt-get autoremove 2>&1 | log \
+&& rm -rf /opt/epubcheck/ /opt/kindlegen/ /opt/yuicompressor/ 2>&1 | log \
+&& return 0 || return 1
+}
+
+msg(){
+$VERBOSE || echo -n $@ | log
+}
+
+test_log(){
+#$VERBOSE || echo -n "Test..." && log "Test..."
+msg "Test..."
+local result=false
+$result && msg "OK" || msg "FAIL"
+#&& { $VERBOSE || echo "OK" && log "TEST... OK" ; } \
+#|| { $VERBOSE || echo "FAIL" && log "TEST... FAIL" ; }
+exit 0
+}
+#######################################
 # Main function of script
 # Globals:
-#   TOGLOBAL
 #   EUID
 #   LOG_FILE
 # Arguments:
@@ -472,20 +513,28 @@ unzip yuicompressor*.zip -d $installpath 2>&1 | log \
 # Returns:
 #   None
 #######################################
-#FIXME: If no installed curl, -h or --help switches doesn't work, instead of writing the missing curl message to terminal.
 set_localization
-check_dependencies
 initialize_variables
 check_parameters $@
-if $TOGLOBAL ; then
-	# Check run as root	
-	if [[ $EUID -ne 0 ]]; then
-		echo -e $msg_RunAsRoot
-		help
-		exit 1
-	fi
+check_dependencies
+
+# Check run as root	
+if [[ $EUID -ne 0 ]]; then
+	echo -e $msg_RunAsRoot
+	help
+	exit 1
 fi
+test_log
 #Run modules
-install_epubcheck && log $msg_epubcheck_OK || log $msg_epubcheck_FAIL
-install_kindlegen && log $msg_kindlegen_OK || log $msg_kindlegen_FAIL
-install_yuicompressor && log $msg_yuicompressor_OK || log $msg_yuicompressor_FAIL
+if $INSTALL ; then
+$VERBOSE || echo -n $msg_epubcheck && log $msg_epubcheck \
+&& install_epubcheck
+
+
+  install_epubcheck && log $msg_epubcheck_OK || log $msg_epubcheck_FAIL
+  install_kindlegen && log $msg_kindlegen_OK || log $msg_kindlegen_FAIL
+  install_yuicompressor && log $msg_yuicompressor_OK || log $msg_yuicompressor_FAIL
+  install_prettyxml && log $msg_prettyxml_OK || log $msg_prettyxml_FAIL
+else
+  uninstall && log $msg_uninstall_OK || log $msg_uninstall_FAIL
+fi
